@@ -10,7 +10,6 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev Fully integrated with the 10-Point Neural Handshake (v3.0).
  */
 interface IAoxcAuditVoice {
-    
     /**
      * @notice Triggered when a proposal or action is flagged by the community or AI.
      * @param proposalId Unique identifier for the audited action.

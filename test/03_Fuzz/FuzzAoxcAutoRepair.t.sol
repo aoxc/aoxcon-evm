@@ -22,12 +22,9 @@ contract Fuzz_REPAIR is Test {
     function setUp() public {
         AoxcAutoRepair repairImplementation = new AoxcAutoRepair();
 
-        // FIX: initialize fonksiyonu v2 mimarisinde 4-5 parametre alabilir. 
+        // FIX: initialize fonksiyonu v2 mimarisinde 4-5 parametre alabilir.
         // Kontratındaki tanıma göre kontrol et.
-        bytes memory initData = abi.encodeCall(
-            AoxcAutoRepair.initialize, 
-            (admin, nexus, aiNode, auditVoice)
-        );
+        bytes memory initData = abi.encodeCall(AoxcAutoRepair.initialize, (admin, nexus, aiNode, auditVoice));
 
         ERC1967Proxy proxy = new ERC1967Proxy(address(repairImplementation), initData);
         repair = AoxcAutoRepair(address(proxy));
@@ -87,7 +84,7 @@ contract Fuzz_REPAIR is Test {
      */
     function testFuzz_Auto_Unlock_Mechanism(bytes4 selector, address mockTarget, uint256 skipTime) public {
         vm.assume(mockTarget != address(0) && !repair.isReserved(selector));
-        
+
         // Max freeze süresinden sonrasını test et (Örn: 24 saat)
         skipTime = bound(skipTime, AoxcConstants.AI_MAX_FREEZE_DURATION + 1, 365 days);
 

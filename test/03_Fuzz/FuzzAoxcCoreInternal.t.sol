@@ -54,8 +54,7 @@ contract Fuzz_AoxcCore is Test {
 
         // 1. ADIM: Kontratındaki orijinal fonksiyon ismini (initializeAkdeniz) kullanıyoruz
         bytes memory initData = abi.encodeCall(
-            AoxcCore.initializeAkdeniz, 
-            (nexus, address(mockSentinel), address(mockRepair), admin, 1_000_000 ether)
+            AoxcCore.initializeAkdeniz, (nexus, address(mockSentinel), address(mockRepair), admin, 1_000_000 ether)
         );
 
         ERC1967Proxy proxy = new ERC1967Proxy(address(coreImplementation), initData);
@@ -108,7 +107,7 @@ contract Fuzz_AoxcCore is Test {
     function testFuzz_Transfer_Cap_Enforcement(uint256 amount) public {
         uint256 total = core.totalSupply();
         uint256 limit = (total * AoxcConstants.MAX_TRANSFER_BPS) / AoxcConstants.BPS_DENOMINATOR;
-        
+
         // Limiti aşan bir miktar belirle
         amount = bound(amount, limit + 1, total);
 
@@ -116,13 +115,7 @@ contract Fuzz_AoxcCore is Test {
         core.mint(admin, amount);
 
         vm.prank(admin);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AoxcErrors.Aoxc_ExceedsMaxTransfer.selector, 
-                amount, 
-                limit
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AoxcErrors.Aoxc_ExceedsMaxTransfer.selector, amount, limit));
         core.transfer(userA, amount);
     }
 

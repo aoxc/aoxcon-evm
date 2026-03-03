@@ -25,10 +25,8 @@ abstract contract BaseTest is Test {
 
         // 1. ADIM: Ana başlatıcıyı (v1/v2 hybrid) çağırıyoruz
         // Parametreler: (nexus, sentinel, repair, admin, v1DailyLimit)
-        bytes memory init = abi.encodeCall(
-            AoxcCore.initializeAkdeniz, 
-            (nexus, sentinel, address(mockInfra), admin, 1_000_000 * 1e18)
-        );
+        bytes memory init =
+            abi.encodeCall(AoxcCore.initializeAkdeniz, (nexus, sentinel, address(mockInfra), admin, 1_000_000 * 1e18));
 
         core = AoxcCore(payable(address(new ERC1967Proxy(address(impl), init))));
 

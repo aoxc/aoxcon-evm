@@ -5,25 +5,24 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 // AOXC Core Imports
-import "./core/AoxcRegistry.sol";
-import "./finance/AoxcVault.sol";
-import "./core/AoxcNexus.sol";
-import "./finance/AoxcCpex.sol";
-import "./libraries/AoxcConstants.sol";
-import "./libraries/AoxcErrors.sol";
+import "aoxc-core/AoxcRegistry.sol";
+import "aoxc-finance/AoxcVault.sol";
+import "aoxc-core/AoxcNexus.sol";
+import "aoxc-finance/AoxcCpex.sol";
+import "aoxc-libraries/AoxcConstants.sol";
+import "aoxc-libraries/AoxcErrors.sol";
 
 /**
  * @title AoxcFactory
  * @author AOXCAN Core
  * @notice Automated deployment engine for V2.2 Neural Ecosystem.
- * @audit High-Priority: Implements Rule 10 (Sovereign Upgrade) & Rule 12 (Self-Healing).
+ * @dev High-Priority: Implements Rule 10 (Sovereign Upgrade) & Rule 12 (Self-Healing).
  */
 contract AoxcFactory is Ownable {
-
     // V1 DNA - IMMUTABLE ROOTS
-    address public constant AOXC_TOKEN_V1 = 0xeB9580C3946Bb47D73aaE1d4f7A94148B554B2f4;
+    address public constant AOXC_TOKEN_V1 = 0xeB9580c3946BB47d73AAE1d4f7A94148B554b2F4;
     address public constant MAIN_ADMIN_V1 = 0x97Bdd1fD1CAF756e00eFD42eBa9406821465B365;
-    address public constant MULTISIG_V1   = 0x20c0DD8B6559912acfAC2ce061B8d5b19Db8CA84;
+    address public constant MULTISIG_V1 = 0x20c0DD8B6559912acfAC2ce061B8d5b19Db8CA84;
 
     struct DeploymentSuite {
         address registry;
@@ -51,36 +50,25 @@ contract AoxcFactory is Ownable {
         address cpxImpl = address(new AoxcCpex());
 
         // 2. NEXUS (Governance & Veto)
-        bytes memory nexusInit = abi.encodeWithSelector(
-            AoxcNexus.initializeNexusV2.selector,
-            MULTISIG_V1, 
-            aiSentinel,  
-            AOXC_TOKEN_V1
-        );
+        bytes memory nexusInit =
+            abi.encodeWithSelector(AoxcNexus.initializeNexusV2.selector, MULTISIG_V1, aiSentinel, AOXC_TOKEN_V1);
         suite.nexus = address(new ERC1967Proxy(nexImpl, nexusInit));
 
         // 3. REGISTRY (Identity & Reputation)
-        bytes memory regInit = abi.encodeWithSelector(
-            AoxcRegistry.initializeRegistryV2.selector,
-            MAIN_ADMIN_V1
-        );
+        bytes memory regInit = abi.encodeWithSelector(AoxcRegistry.initializeRegistryV2.selector, MAIN_ADMIN_V1);
         suite.registry = address(new ERC1967Proxy(regImpl, regInit));
 
         // 4. VAULT (Treasury & Lockdown)
         bytes memory vaultInit = abi.encodeWithSelector(
             AoxcVault.initializeVaultV2.selector,
-            suite.nexus,   // Nexus is the Governor
+            suite.nexus, // Nexus is the Governor
             AOXC_TOKEN_V1
         );
         suite.vault = address(new ERC1967Proxy(vltImpl, vaultInit));
 
         // 5. CPEX (Staking & Yield Engine)
         bytes memory cpexInit = abi.encodeWithSelector(
-            AoxcCpex.initializeCpexV2.selector,
-            suite.nexus,
-            aiSentinel,
-            AOXC_TOKEN_V1,
-            suite.vault
+            AoxcCpex.initializeCpexV2.selector, suite.nexus, aiSentinel, AOXC_TOKEN_V1, suite.vault
         );
         suite.cpex = address(new ERC1967Proxy(cpxImpl, cpexInit));
 

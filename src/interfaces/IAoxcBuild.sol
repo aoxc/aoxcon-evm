@@ -10,12 +10,11 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev Governed by the 10-Point Neural Handshake to ensure build integrity.
  */
 interface IAoxcBuild {
-    
     enum AssetType {
-        IDENTITY,     // Neural Identity tokens
-        RWA_POINTER,  // Real World Asset links
-        SBT_BADGE,    // Soulbound reputation badges
-        AI_AGENT_KEY  // Keys for Autonomous AI Agents
+        IDENTITY, // Neural Identity tokens
+        RWA_POINTER, // Real World Asset links
+        SBT_BADGE, // Soulbound reputation badges
+        AI_AGENT_KEY // Keys for Autonomous AI Agents
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -39,9 +38,9 @@ interface IAoxcBuild {
      * @param packet The 10-point handshake verifying minting authority.
      */
     function buildAsset(
-        address to, 
-        AssetType aType, 
-        bytes32 doc, 
+        address to,
+        AssetType aType,
+        bytes32 doc,
         uint256 initialVal,
         IAoxcCore.NeuralPacket calldata packet
     ) external returns (uint256 assetId);
@@ -53,11 +52,8 @@ interface IAoxcBuild {
     /**
      * @notice Rule 8 & 10: Isolates a compromised function immediately.
      */
-    function triggerEmergencyQuarantine(
-        bytes4 selector, 
-        address target,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function triggerEmergencyQuarantine(bytes4 selector, address target, IAoxcCore.NeuralPacket calldata packet)
+        external;
 
     /**
      * @notice Rule 9: Deploys a cryptographic patch to a target contract.
@@ -78,9 +74,5 @@ interface IAoxcBuild {
     /**
      * @notice Rules 5 & 6: Restores normal operation after a patch is verified.
      */
-    function liftQuarantine(
-        bytes4 selector, 
-        address target,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function liftQuarantine(bytes4 selector, address target, IAoxcCore.NeuralPacket calldata packet) external;
 }

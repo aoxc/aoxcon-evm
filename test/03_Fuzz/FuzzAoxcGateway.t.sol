@@ -67,8 +67,9 @@ contract Fuzz_GATEWAY is Test {
         bytes memory aiProof = abi.encodePacked(r, s, v);
 
         try gateway.initiateMigration(DEST_CHAIN, user, amount, riskScore, aiProof) {
-            // Success: Asset should be locked in gateway or burned
-        } catch {
+        // Success: Asset should be locked in gateway or burned
+        }
+            catch {
             // Failure expected if state or permissions are incomplete
         }
         vm.stopPrank();
@@ -89,8 +90,8 @@ contract Fuzz_GATEWAY is Test {
         bytes memory neuralProof = abi.encodePacked(r, s, v);
 
         // İlk deneme: AI kanıtı geçerliyse başarılı olabilir
-        try gateway.finalizeMigration(DEST_CHAIN, to, amount, migrationId, neuralProof) {} 
-        catch { /* Risk skoru veya yetki bazlı hata */ }
+        try gateway.finalizeMigration(DEST_CHAIN, to, amount, migrationId, neuralProof) {}
+            catch { /* Risk skoru veya yetki bazlı hata */ }
 
         // Replay Protection: Aynı migrationId ile ikinci kez asla geçmemeli
         vm.expectRevert();

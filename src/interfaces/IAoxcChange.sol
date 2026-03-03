@@ -10,11 +10,10 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev V3.0: Integrated with the 10-Point Neural Handshake for Petrified Liquidity and Floor Protection.
  */
 interface IAoxcChange {
-
     struct MarketMetrics {
-        uint256 floorPrice;      // Rule 3: Price baseline supported by AoxcVault
-        uint256 totalPetrified;  // Rule 1: Permanently locked Protocol-Owned Liquidity (POL)
-        bool selfHealingActive;  // Rule 8: Autonomous defense status
+        uint256 floorPrice; // Rule 3: Price baseline supported by AoxcVault
+        uint256 totalPetrified; // Rule 1: Permanently locked Protocol-Owned Liquidity (POL)
+        bool selfHealingActive; // Rule 8: Autonomous defense status
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -38,12 +37,8 @@ interface IAoxcChange {
      * @param tokenOut Destination token address.
      * @param packet The 10-point handshake proof from the Neural Sentinel.
      */
-    function executeSwap(
-        uint256 amountIn, 
-        address tokenIn, 
-        address tokenOut, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function executeSwap(uint256 amountIn, address tokenIn, address tokenOut, IAoxcCore.NeuralPacket calldata packet)
+        external;
 
     /**
      * @notice Rule 4 & 6: Petrifies liquidity to strengthen the market floor.
@@ -52,11 +47,7 @@ interface IAoxcChange {
      * @param amount The amount of LP tokens to lock forever.
      * @param packet The 10-point handshake verifying the petrification intent.
      */
-    function petrifyLiquidity(
-        address lpToken, 
-        uint256 amount,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function petrifyLiquidity(address lpToken, uint256 amount, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Rule 8 & 10: Triggers the Autonomic Defense mechanism to stabilize price.
@@ -64,10 +55,7 @@ interface IAoxcChange {
      * @param stableToken The currency used for defense injection (e.g., USDT).
      * @param packet Evidence of market anomaly signed by the AI Node (10-Point Handshake).
      */
-    function triggerAutonomicDefense(
-        address stableToken, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function triggerAutonomicDefense(address stableToken, IAoxcCore.NeuralPacket calldata packet) external;
 
     /*//////////////////////////////////////////////////////////////
                             DEFENSIVE VIEWS

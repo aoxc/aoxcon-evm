@@ -10,7 +10,6 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev V3.0: The ultimate gatekeeper for the 10-Point Neural Handshake.
  */
 interface IAoxcSentinel {
-    
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/

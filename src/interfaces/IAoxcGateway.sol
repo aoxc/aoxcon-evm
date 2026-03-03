@@ -10,33 +10,24 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev V3.0: Enforces 10-Point Neural Handshake to eliminate bridge-drain attacks.
  */
 interface IAoxcGATEWAY {
-    
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
     event MigrationInitiated(
-        uint16 indexed dstChainId, 
-        address indexed from, 
-        address indexed to, 
-        uint256 amount, 
+        uint16 indexed dstChainId,
+        address indexed from,
+        address indexed to,
+        uint256 amount,
         bytes32 migrationId,
         uint8 riskScore
     );
-    
+
     event MigrationInFinalized(
-        uint16 indexed srcChainId, 
-        address indexed to, 
-        uint256 amount, 
-        bytes32 migrationId,
-        uint256 nonce
+        uint16 indexed srcChainId, address indexed to, uint256 amount, bytes32 migrationId, uint256 nonce
     );
-    
-    event NeuralAnomalyNeutralized(
-        bytes32 indexed migrationId, 
-        uint8 riskScore, 
-        uint16 reasonCode
-    );
+
+    event NeuralAnomalyNeutralized(bytes32 indexed migrationId, uint8 riskScore, uint16 reasonCode);
 
     /*//////////////////////////////////////////////////////////////
                         MIGRATION OPERATIONS
@@ -49,12 +40,9 @@ interface IAoxcGATEWAY {
      * @param amount Amount of assets to migrate.
      * @param packet The 10-point handshake verifying the source-chain's authority.
      */
-    function initiateMigration(
-        uint16 dstChainId,
-        address to,
-        uint256 amount,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external payable;
+    function initiateMigration(uint16 dstChainId, address to, uint256 amount, IAoxcCore.NeuralPacket calldata packet)
+        external
+        payable;
 
     /**
      * @notice Rule 10: Finalizes an inbound migration via AI cryptographic proof.
@@ -77,17 +65,17 @@ interface IAoxcGATEWAY {
     //////////////////////////////////////////////////////////////*/
 
     function getGatewayLockState() external view returns (bool isLocked, uint256 expiry);
-    
+
     /**
      * @notice Returns the required native fee for cross-chain transmission.
      */
     function quoteGatewayFee(uint16 dstChainId, uint256 amount) external view returns (uint256 nativeFee);
-    
+
     /**
      * @notice Rule 3: Returns the remaining 'Quantum' (liquidity limit) for a chain.
      */
     function getRemainingQuantum(uint16 chainId, bool isOutbound) external view returns (uint256 remaining);
-    
+
     function isNetworkSupported(uint16 chainId) external view returns (bool);
     function migrationProcessed(bytes32 migrationId) external view returns (bool);
 

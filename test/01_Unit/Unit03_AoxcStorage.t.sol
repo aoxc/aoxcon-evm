@@ -13,7 +13,6 @@ import {AoxcConstants} from "aoxc-libraries/AoxcConstants.sol";
  * @dev Kütüphane referansları yerel sabitlere mühürlenerek "Undeclared Identifier" hatası bitirilmiştir.
  */
 contract AoxcStorageTest is Test, AoxcStorage {
-    
     // --- ERC-7201 STORAGE SLOTS (Explicitly declared for local scope) ---
     bytes32 internal constant MAIN_STORAGE_SLOT = AoxcConstants.MAIN_STORAGE_SLOT;
     bytes32 internal constant REGISTRY_V2_SLOT = AoxcConstants.REGISTRY_V2_SLOT;
@@ -28,7 +27,7 @@ contract AoxcStorageTest is Test, AoxcStorage {
      */
     function test_ProposalCore_Slot_Packing() public view {
         uint256 startSlot;
-        
+
         assembly {
             startSlot := testProposalInstance.slot
         }
@@ -87,14 +86,17 @@ contract AoxcStorageTest is Test, AoxcStorage {
         bytes32 slot = MAIN_STORAGE_SLOT;
         assembly { ms.slot := slot }
     }
+
     function _getRegistryV2() internal pure override returns (RegistryStorageV2 storage rs) {
         bytes32 slot = REGISTRY_V2_SLOT;
         assembly { rs.slot := slot }
     }
+
     function _getNexusStore() internal pure override returns (NexusParamsV2 storage ns) {
         bytes32 slot = NEXUS_V2_SLOT;
         assembly { ns.slot := slot }
     }
+
     function _getStakingStorage() internal pure override returns (StakingStorage storage ss) {
         bytes32 slot = STAKING_STORAGE_SLOT;
         assembly { ss.slot := slot }

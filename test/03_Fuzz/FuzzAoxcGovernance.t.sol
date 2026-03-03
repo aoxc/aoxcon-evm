@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import {GovernanceTest} from "aox-test/AoxcGovernance.t.sol";
+import {GovernanceTest} from "aoxc-test/01_Unit/Unit02_AoxcGovernance.t.sol";
 import {console2} from "forge-std/Test.sol";
 
 /**

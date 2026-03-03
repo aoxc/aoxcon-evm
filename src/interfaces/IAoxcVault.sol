@@ -10,7 +10,6 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev V3.0: Protected by the 10-Point Neural Handshake for automated settlements and recovery.
  */
 interface IAoxcVault {
-    
     /*//////////////////////////////////////////////////////////////
                             TELEMETRY (EVENTS)
     //////////////////////////////////////////////////////////////*/
@@ -33,39 +32,23 @@ interface IAoxcVault {
      * @notice Rule 3, 7 & 10: Secure ERC20 withdrawal with Neural Vetting.
      * @param packet The 10-point handshake verifying the legitimacy of the transfer.
      */
-    function withdrawErc20(
-        address token, 
-        address to, 
-        uint256 amount, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function withdrawErc20(address token, address to, uint256 amount, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Rule 3, 7 & 10: Secure ETH withdrawal with Neural Vetting.
      */
-    function withdrawEth(
-        address payable to, 
-        uint256 amount, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function withdrawEth(address payable to, uint256 amount, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Rule 6: Requests a settlement for RWA or trade clearing.
      */
-    function requestSettlement(
-        address token, 
-        address to, 
-        uint256 amount,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function requestSettlement(address token, address to, uint256 amount, IAoxcCore.NeuralPacket calldata packet)
+        external;
 
     /**
      * @notice Rule 8: AI-triggered refill of operational hot wallets.
      */
-    function requestAutomatedRefill(
-        uint256 amount,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function requestAutomatedRefill(uint256 amount, IAoxcCore.NeuralPacket calldata packet) external;
 
     /*//////////////////////////////////////////////////////////////
                         SAFETY & SELF-HEALING
@@ -74,20 +57,13 @@ interface IAoxcVault {
     /**
      * @notice Rule 8 & 10: Emergency recovery of funds to a verified cold-storage.
      */
-    function emergencyNeuralRecovery(
-        address token, 
-        address to, 
-        uint256 amount,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function emergencyNeuralRecovery(address token, address to, uint256 amount, IAoxcCore.NeuralPacket calldata packet)
+        external;
 
     /**
      * @notice Rule 9: Proposes a new logic for the Vault's internal accounting.
      */
-    function proposeSelfHealing(
-        address newLogic,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function proposeSelfHealing(address newLogic, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Finalizes the self-healing process after the cooling period.
@@ -105,7 +81,7 @@ interface IAoxcVault {
 
     function openNextWindow(IAoxcCore.NeuralPacket calldata packet) external;
     function toggleEmergencyMode(bool status, IAoxcCore.NeuralPacket calldata packet) external;
-    
+
     function getInitialUnlockTime() external view returns (uint256);
     function getCurrentWindowEnd() external view returns (uint256);
     function getCurrentWindowId() external view returns (uint256);

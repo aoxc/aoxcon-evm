@@ -6,7 +6,6 @@ pragma solidity 0.8.33;
  * @notice Interface for the AOXCAN System Architect.
  */
 interface IAoxcFactory {
-    
     struct DeploymentSuite {
         address registry;
         address vault;

@@ -12,49 +12,48 @@ import {AoxcConstants} from "aoxc-libraries/AoxcConstants.sol";
  * @dev    V3.1 - Hardened: Optimized slot packing & explicit upgrade gaps.
  */
 abstract contract AoxcStorage {
-    
     /*//////////////////////////////////////////////////////////////
                         V3 NEURAL STRUCTURES (DNA)
     //////////////////////////////////////////////////////////////*/
 
     struct NeuralPacket {
-        address origin;          // 20 bytes
-        address target;          // 20 bytes
-        uint256 value;           // 32 bytes
-        uint256 nonce;           // 32 bytes
-        uint256 deadline;        // 32 bytes
-        bytes32 protocolHash;    // 32 bytes
-        uint16 reasonCode;       // 2 bytes
-        uint8 riskScore;         // 1 byte
-        bool autoRepairMode;     // 1 byte
-        bytes neuralSignature;   // Dynamic bytes (keep at end)
+        address origin; // 20 bytes
+        address target; // 20 bytes
+        uint256 value; // 32 bytes
+        uint256 nonce; // 32 bytes
+        uint256 deadline; // 32 bytes
+        bytes32 protocolHash; // 32 bytes
+        uint16 reasonCode; // 2 bytes
+        uint8 riskScore; // 1 byte
+        bool autoRepairMode; // 1 byte
+        bytes neuralSignature; // Dynamic bytes (keep at end)
     }
 
     /*//////////////////////////////////////////////////////////////
                            SHARED STRUCTURES
     //////////////////////////////////////////////////////////////*/
 
-    struct CitizenRecord { 
-        uint256 citizenId;       // Slot 0
-        uint256 reputation;      // Slot 1
-        uint256 totalVoted;      // Slot 2
-        uint64 joinedAt;         // \
-        uint64 lastPulse;        //  |-- Sıkıştırılmış Slot (Slot 3)
-        uint8 tier;              //  |
-        bool isBlacklisted;      // /
-        string blacklistReason;  // Slot 4+ (Dynamic)
+    struct CitizenRecord {
+        uint256 citizenId; // Slot 0
+        uint256 reputation; // Slot 1
+        uint256 totalVoted; // Slot 2
+        uint64 joinedAt; // \
+        uint64 lastPulse; //  |-- Sıkıştırılmış Slot (Slot 3)
+        uint8 tier; //  |
+        bool isBlacklisted; // /
+        string blacklistReason; // Slot 4+ (Dynamic)
     }
 
-    struct PatchCore { 
-        address targetContract;  // 20 bytes
-        address candidateLogic;  // 20 bytes
+    struct PatchCore {
+        address targetContract; // 20 bytes
+        address candidateLogic; // 20 bytes
         bytes4 functionSelector; // 4 bytes
-        uint64 timestamp;        // 8 bytes
-        uint64 autoUnlockAt;     // 8 bytes
-        bool isQuarantined;      // 1 byte
+        uint64 timestamp; // 8 bytes
+        uint64 autoUnlockAt; // 8 bytes
+        bool isQuarantined; // 1 byte
     }
 
-    struct NeuralCellV2 { 
+    struct NeuralCellV2 {
         uint256 cellId;
         bytes32 cellHash;
         uint256 memberCount;
@@ -62,15 +61,15 @@ abstract contract AoxcStorage {
         bool isQuarantined;
     }
 
-    struct ProposalCore { 
-        address proposer;        // 20 bytes
-        uint64 startTime;        // 8 bytes
-        uint64 endTime;          // 8 bytes
+    struct ProposalCore {
+        address proposer; // 20 bytes
+        uint64 startTime; // 8 bytes
+        uint64 endTime; // 8 bytes
         uint256 forVotes;
         uint256 againstVotes;
         uint256 riskScore;
         uint256 aiRiskScore;
-        uint256 snapshot; 
+        uint256 snapshot;
         bool exists;
         bool executed;
         bool vetoed;
@@ -91,7 +90,9 @@ abstract contract AoxcStorage {
                         NAMESPACED STORAGE LAYOUTS
     //////////////////////////////////////////////////////////////*/
 
-    /** @custom:storage-location erc7201:aoxc.main.storage.v2 */
+    /**
+     * @custom:storage-location erc7201:aoxc.main.storage.v2
+     */
     struct MainStorage {
         address nexusHub;
         address sentinelAi;
@@ -102,8 +103,8 @@ abstract contract AoxcStorage {
         address treasury;
         uint256 operationalNonce;
         uint256 dailyTransferLimit;
-        uint256 anchorSupply;    
-        uint256 mintedThisYear;  
+        uint256 anchorSupply;
+        uint256 mintedThisYear;
         uint256 repairExpiry;
         bytes32 activeProtocolHash;
         uint64 lastPulseTimestamp;
@@ -118,22 +119,26 @@ abstract contract AoxcStorage {
         mapping(address => uint256) dailySpent;
     }
 
-    /** @custom:storage-location erc7201:aoxc.registry.storage.v2 */
+    /**
+     * @custom:storage-location erc7201:aoxc.registry.storage.v2
+     */
     struct RegistryStorageV2 {
         mapping(address => CitizenRecord) citizenRecords;
         mapping(bytes4 => mapping(address => PatchCore)) activePatches;
         mapping(uint256 => NeuralCellV2) cells;
-        mapping(address => uint256) userToCellMap;  
-        mapping(uint256 => SovereignAsset) assets;  
-        uint256 totalCells;                         
-        uint256 activeCellPointer; 
-        uint256 totalOps;          
-        bytes32 lastCellHash;                       
+        mapping(address => uint256) userToCellMap;
+        mapping(uint256 => SovereignAsset) assets;
+        uint256 totalCells;
+        uint256 activeCellPointer;
+        uint256 totalOps;
+        bytes32 lastCellHash;
     }
 
-    /** @custom:storage-location erc7201:aoxc.nexus.storage.v2 */
+    /**
+     * @custom:storage-location erc7201:aoxc.nexus.storage.v2
+     */
     struct NexusParamsV2 {
-        address aoxcToken; 
+        address aoxcToken;
         uint256 votingDelay;
         uint256 votingPeriod;
         uint256 quorumNumerator;
@@ -142,12 +147,14 @@ abstract contract AoxcStorage {
         mapping(uint256 => mapping(address => bool)) hasVoted;
     }
 
-    /** @custom:storage-location erc7201:aoxc.staking.storage.v2 */
+    /**
+     * @custom:storage-location erc7201:aoxc.staking.storage.v2
+     */
     struct StakingStorage {
         uint256 totalValueLocked;
         uint256 baseYieldRateBps;
         uint256 attritionPenaltyBps;
-        uint256 minLockdownDuration; 
+        uint256 minLockdownDuration;
         bool stakingEnabled;
         mapping(address => IAoxcCpex.PositionInfo[]) accountPositions;
     }

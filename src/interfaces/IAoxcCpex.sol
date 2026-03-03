@@ -10,17 +10,16 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev V3.0: Enforces the 10-Point Neural Handshake for secure staking and meritocracy.
  */
 interface IAoxcCpex {
-    
     /**
      * @dev User's unique staking position metadata.
      * Packed for Gas Efficiency: [principal(128) | entryTime(64) | lockPeriod(64)] = 256 bits (1 Slot)
      */
     struct PositionInfo {
-        uint128 principal;   // Rule 3: Amount of tokens locked
-        uint64 entryTime;    // Rule 5: Block timestamp at initiation
-        uint64 lockPeriod;   // Mandatory duration in seconds
-        uint64 neuralBoost;  // Rule 7: AI-assigned multiplier (Basis Points)
-        bool isActive;       // Operational status
+        uint128 principal; // Rule 3: Amount of tokens locked
+        uint64 entryTime; // Rule 5: Block timestamp at initiation
+        uint64 lockPeriod; // Mandatory duration in seconds
+        uint64 neuralBoost; // Rule 7: AI-assigned multiplier (Basis Points)
+        bool isActive; // Operational status
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -42,21 +41,14 @@ interface IAoxcCpex {
      * @param duration Lockdown duration.
      * @param packet The 10-point handshake verifying the user's intent and AI approval.
      */
-    function openPosition(
-        uint256 amount, 
-        uint256 duration, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function openPosition(uint256 amount, uint256 duration, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Rule 4, 10: Finalizes a position and releases principal/yield.
      * @param index The index of the position to close.
      * @param packet The 10-point handshake verifying the cooldown and release authority.
      */
-    function closePosition(
-        uint256 index, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function closePosition(uint256 index, IAoxcCore.NeuralPacket calldata packet) external;
 
     /*//////////////////////////////////////////////////////////////
                         DEFENSIVE & ANALYTIC VIEWS
@@ -76,16 +68,10 @@ interface IAoxcCpex {
     /**
      * @notice Rule 9: Updates the base yield rate via global protocol hash verification.
      */
-    function updateBaseYield(
-        uint256 newRateBps, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function updateBaseYield(uint256 newRateBps, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Rule 8 & 10: Updates the AI Node authorized for CPEX signatures.
      */
-    function updateAiNode(
-        address newNode, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function updateAiNode(address newNode, IAoxcCore.NeuralPacket calldata packet) external;
 }

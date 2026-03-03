@@ -10,21 +10,20 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev Enforces 10-Point Neural Handshake on all strategic DAO decisions.
  */
 interface IAoxcNexus {
-    
     /**
      * @notice Proposal lifecycle states including Neural and Repair terminal states.
      */
     enum ProposalState {
-        Pending,        // 0
-        Active,         // 1
-        Canceled,       // 2
-        Defeated,       // 3
-        Succeeded,      // 4
-        Queued,         // 5
-        Expired,        // 6
-        Executed,       // 7
-        NeuralVetoed,   // 8 (AI Interception via Rule 10)
-        RepairPending   // 9 (Auto-Repair triggering via Rule 8)
+        Pending, // 0
+        Active, // 1
+        Canceled, // 2
+        Defeated, // 3
+        Succeeded, // 4
+        Queued, // 5
+        Expired, // 6
+        Executed, // 7
+        NeuralVetoed, // 8 (AI Interception via Rule 10)
+        RepairPending // 9 (Auto-Repair triggering via Rule 8)
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -67,27 +66,18 @@ interface IAoxcNexus {
     /**
      * @notice Rule 4 & 5: Moves a successful proposal to the Timelock queue.
      */
-    function queue(
-        uint256 proposalId,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function queue(uint256 proposalId, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Rule 10: Executes the queued proposal after the Timelock period.
      */
-    function execute(
-        uint256 proposalId,
-        IAoxcCore.NeuralPacket calldata packet
-    ) external payable;
+    function execute(uint256 proposalId, IAoxcCore.NeuralPacket calldata packet) external payable;
 
     /**
      * @notice Rule 7, 8 & 10: Intercepts a proposal via AI Sentinel proof.
      * @dev This is the 'Karujan' AI Defense Layer.
      */
-    function processNeuralVeto(
-        uint256 proposalId, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function processNeuralVeto(uint256 proposalId, IAoxcCore.NeuralPacket calldata packet) external;
 
     /*//////////////////////////////////////////////////////////////
                             VOTING ENGINE
@@ -96,18 +86,14 @@ interface IAoxcNexus {
     /**
      * @notice Rule 7: Casts a vote weighted by reputation and AI risk analysis.
      */
-    function castVote(
-        uint256 proposalId, 
-        uint8 support, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external returns (uint256 weight);
+    function castVote(uint256 proposalId, uint8 support, IAoxcCore.NeuralPacket calldata packet)
+        external
+        returns (uint256 weight);
 
     /**
      * @notice Rule 10: Casts a vote via cryptographic signature (EIP-712).
      */
-    function castVoteBySig(
-        uint256 proposalId, 
-        uint8 support, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external returns (uint256 weight);
+    function castVoteBySig(uint256 proposalId, uint8 support, IAoxcCore.NeuralPacket calldata packet)
+        external
+        returns (uint256 weight);
 }

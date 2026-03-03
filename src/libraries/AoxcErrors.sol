@@ -5,7 +5,7 @@ pragma solidity 0.8.33;
  * @title AoxcErrors
  * @author AOXCAN Neural Division
  * @notice Centralized Diagnostic Library for the Akdeniz v2.0.0 Ecosystem.
- * @dev 
+ * @dev
  * AUDIT DATA:
  * - Optimized via Custom Errors (EIP-6093 style) to minimize gas consumption.
  * - Categorized for seamless AI telemetry and off-chain monitoring.
@@ -15,7 +15,7 @@ library AoxcErrors {
     /*//////////////////////////////////////////////////////////////
                         1. CORE: ACCESS & IDENTITY
     //////////////////////////////////////////////////////////////*/
-    error Aoxc_AccessDenied(); 
+    error Aoxc_AccessDenied();
     error Aoxc_Unauthorized(bytes32 role, address account);
     error Aoxc_InvalidAddress();
     error Aoxc_Blacklisted(address account);
@@ -25,26 +25,29 @@ library AoxcErrors {
     /*//////////////////////////////////////////////////////////////
                         2. DYNAMIC MODULE EXTENSIONS
     //////////////////////////////////////////////////////////////*/
-    /** * @dev Generic error slot for future contracts not yet defined in this library.
+    /**
+     * @dev Generic error slot for future contracts not yet defined in this library.
      * @param moduleId The ID of the emitting contract (e.g., 10 for AI_GAMES).
      * @param errorCode The specific internal error code defined in that module.
      */
     error Aoxc_Module_Error(uint8 moduleId, uint16 errorCode);
-    
-    /** @dev Catch-all for unplanned logic reverts with string descriptive data. */
+
+    /**
+     * @dev Catch-all for unplanned logic reverts with string descriptive data.
+     */
     error Aoxc_CustomRevert(string reason);
 
     /*//////////////////////////////////////////////////////////////
                         3. NEURAL HANDSHAKE (10 LAWS)
     //////////////////////////////////////////////////////////////*/
-    error Aoxc_Neural_InvalidOrigin();                      // Rule 1: msg.sender check
-    error Aoxc_Neural_InvalidTarget();                      // Rule 2: Destination check
+    error Aoxc_Neural_InvalidOrigin(); // Rule 1: msg.sender check
+    error Aoxc_Neural_InvalidTarget(); // Rule 2: Destination check
     error Aoxc_Neural_ValueMismatch(uint256 exp, uint256 act); // Rule 3: Balance/Value
     error Aoxc_Neural_InvalidNonce(uint256 prov, uint256 exp); // Rule 4: Replay protection
     error Aoxc_Neural_HandshakeExpired(uint256 dl, uint256 cur); // Rule 5: Time TTL
-    error Aoxc_Neural_InvalidReasonCode(uint16 code);       // Rule 6: Telemetry tagging
+    error Aoxc_Neural_InvalidReasonCode(uint16 code); // Rule 6: Telemetry tagging
     error Aoxc_Neural_RiskTooHigh(uint8 score, uint8 limit); // Rule 7: AI Risk Threshold
-    error Aoxc_Neural_RepairModeRequired();                 // Rule 8: Emergency state
+    error Aoxc_Neural_RepairModeRequired(); // Rule 8: Emergency state
     error Aoxc_Neural_ProtocolMismatch(bytes32 exp, bytes32 act); // Rule 9: Versioning
     error Aoxc_Neural_SecurityVeto(address sentinel, uint256 risk); // Rule 10: AI Shutdown
 
@@ -56,7 +59,7 @@ library AoxcErrors {
     error Aoxc_TransferFailed();
     error Aoxc_ZeroAmount();
     error Aoxc_InflationHardcapReached();
-    error Aoxc_Vault_Locked(); 
+    error Aoxc_Vault_Locked();
     error Aoxc_Vault_UnauthorizedWithdrawal();
     error Aoxc_Vault_SealBroken();
 

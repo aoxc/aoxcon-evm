@@ -5,11 +5,12 @@ pragma solidity 0.8.33;
  * @title AoxcBuild (Neural Prime V3.2)
  * @author AOXCAN Infrastructure Division
  * @notice Enterprise-grade asset factory with Soulbound Identity and Neural Cell mapping.
- * @dev Implements Rule 11 (Non-Transferable Identity) and Rule 12 (Cellular Growth).
- * Fully integrated with AI Node signatures and AutoRepair quarantine.
+ * @dev Optimized for OZ 5.x. Implements Rule 11 (Identity) and Rule 12 (Cellular Growth).
  */
 
-import {AccessManagerUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
+import {
+    AccessManagerUpgradeable
+} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -55,7 +56,7 @@ contract AoxcBuild is
     mapping(address => uint256) public lastActionNonce;
 
     /*//////////////////////////////////////////////////////////////
-                               MODIFIERS
+                                MODIFIERS
     //////////////////////////////////////////////////////////////*/
 
     modifier onlyActive() {
@@ -69,15 +70,13 @@ contract AoxcBuild is
     }
 
     /*//////////////////////////////////////////////////////////////
-                             INITIALIZER
+                                INITIALIZER
     //////////////////////////////////////////////////////////////*/
 
-    function initializeBuildV3(
-        address admin, 
-        string memory uri, 
-        address aiNode_, 
-        address auditVoice_
-    ) external initializer {
+    function initializeBuildV3(address admin, string memory uri, address aiNode_, address auditVoice_)
+        external
+        initializer
+    {
         if (admin == address(0) || aiNode_ == address(0) || auditVoice_ == address(0)) {
             revert AoxcErrors.Aoxc_InvalidAddress();
         }
@@ -85,14 +84,13 @@ contract AoxcBuild is
         __AccessManager_init(admin);
         __ERC721_init("Aoxc Universal Assets", "AOX-X");
         __ReentrancyGuard_init();
-        __UUPSUpgradeable_init();
+        // __UUPSUpgradeable_init(); // Removed for OZ v5 compatibility
 
         nextAssetId = 1;
         baseAssetURI = uri;
         aiNode = aiNode_;
         auditVoice = auditVoice_;
 
-        // Critical functions immune to quarantine
         isReserved[this.liftQuarantine.selector] = true;
         isReserved[this.executePatch.selector] = true;
     }
@@ -101,22 +99,19 @@ contract AoxcBuild is
                         PRODUCTION (ASSET MINTING)
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Mints a new Sovereign Asset or Identity.
-     * @dev IDENTITY types (under ID 1100) are Soulbound and non-transferable.
-     */
-    function buildAsset(
-        address to,
-        AssetType aType,
-        bytes32 doc,
-        uint256 initialVal
-    ) external override nonReentrant onlyActive returns (uint256 assetId) {
+    function buildAsset(address to, AssetType aType, bytes32 doc, uint256 initialVal)
+        external
+        override
+        nonReentrant
+        onlyActive
+        returns (uint256 assetId)
+    {
         _checkAoxcRole(AoxcConstants.GUARDIAN_ROLE);
-        
+
         if (to == address(0)) revert AoxcErrors.Aoxc_InvalidAddress();
 
         RegistryStorageV2 storage s = _getRegistryV2();
-        
+
         if (aType == AssetType.IDENTITY && s.citizenRecords[to].citizenId != 0) {
             revert AoxcErrors.Aoxc_CustomRevert("BUILD: IDENTITY_ALREADY_EXISTS");
         }
@@ -142,7 +137,7 @@ contract AoxcBuild is
     }
 
     /*//////////////////////////////////////////////////////////////
-                         NEURAL CELL MANAGEMENT
+                        NEURAL CELL MANAGEMENT
     //////////////////////////////////////////////////////////////*/
 
     function _onboardCitizen(address to, uint256 assetId) internal {
@@ -157,7 +152,7 @@ contract AoxcBuild is
             isBlacklisted: false,
             blacklistReason: ""
         });
-        
+
         _assignToCell(to);
         emit AoxcEvents.MemberOnboarded(to, assetId, true);
     }
@@ -165,11 +160,11 @@ contract AoxcBuild is
     function _assignToCell(address member) internal {
         RegistryStorageV2 storage s = _getRegistryV2();
         uint256 currentCellId = s.totalCells == 0 ? _spawnCell() : s.totalCells;
-        
+
         if (s.cells[currentCellId].memberCount >= AoxcConstants.MAX_CELL_MEMBERS) {
             currentCellId = _spawnCell();
         }
-        
+
         s.userToCellMap[member] = currentCellId;
         s.cells[currentCellId].memberCount++;
     }
@@ -192,8 +187,10 @@ contract AoxcBuild is
                         REPAIR ENGINE INTERFACE
     //////////////////////////////////////////////////////////////*/
 
-    function triggerEmergencyQuarantine(bytes4 selector, address target) 
-        external override(IAoxcBuild, IAoxcAutoRepair) nonReentrant 
+    function triggerEmergencyQuarantine(bytes4 selector, address target)
+        external
+        override(IAoxcBuild, IAoxcAutoRepair)
+        nonReentrant
     {
         if (msg.sender != aiNode && !_hasSovereignRole(AoxcConstants.GUARDIAN_ROLE, msg.sender)) {
             revert AoxcErrors.Aoxc_Neural_IdentityForgery();
@@ -213,9 +210,7 @@ contract AoxcBuild is
         anomalyLedger[anomalyId] = true;
     }
 
-    function liftQuarantine(bytes4 selector, address target) 
-        external override(IAoxcBuild, IAoxcAutoRepair) onlyActive 
-    {
+    function liftQuarantine(bytes4 selector, address target) external override(IAoxcBuild, IAoxcAutoRepair) onlyActive {
         if (msg.sender != auditVoice && !_hasSovereignRole(AoxcConstants.GUARDIAN_ROLE, msg.sender)) {
             revert AoxcErrors.Aoxc_CustomRevert("REPAIR: ACCESS_DENIED");
         }
@@ -226,12 +221,8 @@ contract AoxcBuild is
                              CORE OVERRIDES
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @dev Enforces Soulbound Token (SBT) logic for Identity assets.
-     */
     function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
         address from = _ownerOf(tokenId);
-        // IDs below 1100 are Citizens (Identity). They cannot be transferred.
         if (from != address(0) && to != address(0) && (tokenId < 1100)) {
             revert AoxcErrors.Aoxc_CustomRevert("SBT: NON_TRANSFERABLE_IDENTITY");
         }
@@ -239,7 +230,8 @@ contract AoxcBuild is
     }
 
     function _verifyNeuralProof(bytes memory data, bytes calldata proof) internal {
-        bytes32 digest = keccak256(abi.encode(data, lastActionNonce[msg.sender]++, block.chainid)).toEthSignedMessageHash();
+        bytes32 digest =
+            keccak256(abi.encode(data, lastActionNonce[msg.sender]++, block.chainid)).toEthSignedMessageHash();
         if (digest.recover(proof) != aiNode) revert AoxcErrors.Aoxc_Neural_IdentityForgery();
     }
 
@@ -247,7 +239,6 @@ contract AoxcBuild is
         _checkAoxcRole(AoxcConstants.UPGRADER_ROLE);
     }
 
-    // Role Mapping to AccessManager
     function _hasSovereignRole(bytes32 role, address account) internal view returns (bool) {
         (bool isMember,) = hasRole(uint64(uint256(role)), account);
         return isMember;
@@ -257,7 +248,7 @@ contract AoxcBuild is
         if (!_hasSovereignRole(role, msg.sender)) revert AoxcErrors.Aoxc_Unauthorized(role, msg.sender);
     }
 
-    function isOperational(bytes4 selector) external view override returns (bool) {
+    function isOperational(bytes4 selector) external view override(IAoxcBuild, IAoxcAutoRepair) returns (bool) {
         return !globalCircuitBreaker && !_getRegistryV2().activePatches[selector][address(this)].isQuarantined;
     }
 
@@ -268,4 +259,6 @@ contract AoxcBuild is
     function validatePatch(uint256 anomalyId) external view override returns (bool isVerified) {
         return anomalyLedger[anomalyId];
     }
+
+    uint256[50] private __gap;
 }

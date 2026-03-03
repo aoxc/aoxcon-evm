@@ -45,7 +45,7 @@ contract AoxcDaoManager is AccessControl, ReentrancyGuard, Pausable {
 
     bytes32 public constant GOVERNANCE_ROLE = keccak256("GOVERNANCE_ROLE");
     bytes32 public constant CONFIRM_TYPEHASH = keccak256("Confirm(uint256 txIndex,uint256 nonce,uint256 deadline)");
-    
+
     IAoxcRegistry public immutable REGISTRY;
     IERC20 public immutable AOXC_TOKEN;
     bytes32 public immutable DOMAIN_SEPARATOR;
@@ -56,7 +56,7 @@ contract AoxcDaoManager is AccessControl, ReentrancyGuard, Pausable {
                              DAO STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    uint256 public proposalLifespan; 
+    uint256 public proposalLifespan;
     uint256 public nextTxIndex;
     uint256 public minExecutionPower;
 
@@ -65,8 +65,8 @@ contract AoxcDaoManager is AccessControl, ReentrancyGuard, Pausable {
         uint256 value;
         uint256 totalPowerConfirmed;
         uint256 createdAt;
-        bool exists;   // @audit: Ghost Proposal Protection
-        bool executed; 
+        bool exists; // @dev: Ghost Proposal Protection
+        bool executed;
         bytes data;
         mapping(address => bool) isConfirmed;
     }
@@ -114,7 +114,7 @@ contract AoxcDaoManager is AccessControl, ReentrancyGuard, Pausable {
 
         stakedBalances[msg.sender] += amount;
         AOXC_TOKEN.safeTransferFrom(msg.sender, address(this), amount);
-        
+
         REGISTRY.syncMemberTier(msg.sender, stakedBalances[msg.sender]);
 
         emit AoxcEvents.ComponentSynchronized(keccak256("DAO_MEMBER_STAKE"), msg.sender);

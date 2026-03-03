@@ -65,10 +65,15 @@ contract MockVotesToken is ERC20, IVotes {
         return totalSupply();
     }
 
-    function delegates(address account) external pure override returns (address) { return account; }
+    function delegates(address account) external pure override returns (address) {
+        return account;
+    }
     function delegate(address) external override {}
     function delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32) external override {}
-    function getVotes(address account) external view override returns (uint256) { return balanceOf(account); }
+
+    function getVotes(address account) external view override returns (uint256) {
+        return balanceOf(account);
+    }
 }
 
 /*//////////////////////////////////////////////////////////////
@@ -87,19 +92,14 @@ contract GovernanceTest is Test {
     uint256 user1Key = 0xA11CE;
 
     function setUp() public {
-        vm.roll(100); 
+        vm.roll(100);
         token = new MockVotesToken();
         registry = new MockRegistry();
         user1 = vm.addr(user1Key);
 
         // 1. Audit Voice Proxy Deployment (Upgradeability Simulation)
         AoxcAuditVoice implementation = new AoxcAuditVoice();
-        bytes memory initData = abi.encodeWithSelector(
-            AoxcAuditVoice.initialize.selector, 
-            admin, 
-            nexus, 
-            address(token)
-        );
+        bytes memory initData = abi.encodeWithSelector(AoxcAuditVoice.initialize.selector, admin, nexus, address(token));
         ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), initData);
         auditVoice = AoxcAuditVoice(address(proxy));
 
@@ -120,11 +120,11 @@ contract GovernanceTest is Test {
         token.mint(user1, 10000 * 1e18);
 
         // Flash-loan protection: must wait at least 1 block
-        vm.roll(block.number + 1); 
+        vm.roll(block.number + 1);
 
         vm.prank(user1);
         auditVoice.emitVetoSignal(proposalId);
-        
+
         console2.log("Veto Signal: Success");
     }
 
@@ -133,10 +133,10 @@ contract GovernanceTest is Test {
         token.mint(user1, 20000 * 1e18);
 
         // Roll yapmıyoruz! Aynı blokta oy kullanma denemesi REVERT etmeli.
-        vm.expectRevert(); 
+        vm.expectRevert();
         vm.prank(user1);
         auditVoice.emitVetoSignal(proposalId);
-        
+
         console2.log("Flash-loan prevention: Verified");
     }
 
@@ -150,7 +150,7 @@ contract GovernanceTest is Test {
         // User joins and stakes
         uint256 stakeAmount = 10000 * 1e18;
         token.mint(user1, stakeAmount);
-        
+
         vm.startPrank(user1);
         token.approve(address(daoManager), stakeAmount);
         daoManager.joinAndStake(stakeAmount);
@@ -159,7 +159,7 @@ contract GovernanceTest is Test {
         // Off-chain EIP-712 Signature Simulation
         uint256 deadline = block.timestamp + 1 hours;
         uint256 nonce = daoManager.nonces(user1);
-        
+
         bytes32 digest = keccak256(
             abi.encodePacked(
                 "\x19\x01",

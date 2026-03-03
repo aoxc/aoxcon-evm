@@ -1,46 +1,56 @@
 # ==============================================================================
-# AOXCORE PROTOCOL - MASTER GIT IGNORE SPECIFICATION
+# 🧠 AOXCORE PROTOCOL - NEURAL ARCHITECTURE GIT SPEC
 # ==============================================================================
 
-# --- FOUNDRY ARTIFACTS ---
-# Build artifacts and temporary compiler outputs (generated on every build)
+# --- 🛠️ FOUNDRY & COMPILER ---
+# Her forge build sonrası değişen, gereksiz yükler
 out/
 cache/
 foundry.lock
+# X-Layer özel derleme çıktıları
+artifacts/
 
-# --- DEPENDENCIES ---
-# External libraries should be managed via submodules or package managers.
-# Note: Keep lib/ only if you are manually managing source files.
-lib/
+# --- 📦 DEPENDENCIES ---
+# Kütüphaneler 'lib' altında tutulur, submodule kullanmıyorsan ignore etme. 
+# Ama node_modules kesinlikle gitmemeli.
+node_modules/
+dist/
 
-# --- SECRETS & ENVIRONMENT ---
-# NEVER COMMIT: Private keys, API keys, and sensitive RPC URLs
+# --- 🔐 SECRETS & NEURAL KEYS ---
+# KRİTİK: Private key ve RPC adreslerini asla commit etme!
 .env
 .env.*
 !.env.example
+*.key
+*.pem
+# AI Sentinel yerel imza logları
+secrets/
 
-# --- BROADCAST & CHAIN DATA ---
-# On-chain transaction logs (Broadcasts) - Filtering for essential data only
+# --- 📡 BROADCAST & CHAIN DATA ---
+# Zincir üstü işlem kayıtları (Sadece son başarılı run'ı tut, gerisini sil)
 broadcast/
 !broadcast/*/run-latest.json
 /broadcast/*/31337/
 /broadcast/**/dry-run/
+# Yerel node logları
+anvil.log
 
-# --- TESTING & REPORTS ---
-# Test results, gas snapshots, and coverage reports
+# --- 📊 TESTING & NEURAL REPORTS ---
+# Test sonuçları ve Gas analizleri
 reports/
 coverage/
 .lcov
 gas-report.txt
 .gas-snapshot
+# AI Risk analiz raporları
+neural-audit-results/
 
-# --- UPGRADE & DEPLOYMENT TEMP ---
-# Temporary JSON logs or deployment state files from upgrade scripts
+# --- 🚀 UPGRADE & DEPLOYMENT ---
+# Scriptlerin geçici dosyaları
 upgrade/temp/
 *.log
 
-# --- OS & IDE SPECIFIC ---
-# Operating system metadata and local IDE configurations
+# --- 💻 OS & IDE (PROFESSIONAL) ---
 .DS_Store
 Thumbs.db
 .vscode/
@@ -48,12 +58,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# --- SYSTEM & BUILD ---
-# Node.js artifacts (if using Hardhat, Truffle, or JS-based tooling)
-node_modules/
-dist/
-artifacts/
-
 # ==============================================================================
-# END OF SPECIFICATION
+# 🌊 AOXCAN SECURITY - END OF SPEC
 # ==============================================================================

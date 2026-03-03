@@ -35,13 +35,7 @@ contract AoxcCore_Fuzz_Test is BaseTest {
         // 5. Transfer denemesi -> Hata bekliyoruz
         // FIX: AOXC_Blacklisted -> Aoxc_Blacklisted (CamelCase Senkronizasyonu)
         vm.startPrank(attacker);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AoxcErrors.Aoxc_Blacklisted.selector, 
-                attacker, 
-                reason
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AoxcErrors.Aoxc_Blacklisted.selector, attacker, reason));
 
         // Transfer işlemi (Kilitli olduğu için revert etmeli)
         core.transfer(userB, amount);

@@ -8,7 +8,6 @@ pragma solidity 0.8.33;
  * @dev Supports Ghost Proposal protection, Signature-based voting, and Staking logic.
  */
 interface IAoxcDaoManager {
-    
     /*//////////////////////////////////////////////////////////////
                             DATA STRUCTURES
     //////////////////////////////////////////////////////////////*/
@@ -18,7 +17,7 @@ interface IAoxcDaoManager {
         uint256 value;
         uint256 totalPowerConfirmed;
         uint256 createdAt;
-        bool exists;   // Ghost Proposal Protection
+        bool exists; // Ghost Proposal Protection
         bool executed;
         bytes data;
     }
@@ -27,15 +26,18 @@ interface IAoxcDaoManager {
                             VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function transactions(uint256 txIndex) external view returns (
-        address to,
-        uint256 value,
-        uint256 totalPowerConfirmed,
-        uint256 createdAt,
-        bool exists,
-        bool executed,
-        bytes memory data
-    );
+    function transactions(uint256 txIndex)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            uint256 totalPowerConfirmed,
+            uint256 createdAt,
+            bool exists,
+            bool executed,
+            bytes memory data
+        );
 
     function stakedBalances(address member) external view returns (uint256);
     function lastVoteTxIndex(address member) external view returns (uint256);

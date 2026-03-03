@@ -30,10 +30,8 @@ contract AOXCoreMasterTest is Test {
 
         // 2. Proxy Initialization
         // İlk kurulum initializeAkdeniz ile yapılır (V1/V2 Hybrid)
-        bytes memory initData = abi.encodeCall(
-            AoxcCore.initializeAkdeniz, 
-            (nexus, mockSentinel, mockRepair, admin, 1_000_000 * 1e18)
-        );
+        bytes memory initData =
+            abi.encodeCall(AoxcCore.initializeAkdeniz, (nexus, mockSentinel, mockRepair, admin, 1_000_000 * 1e18));
 
         ERC1967Proxy proxy = new ERC1967Proxy(address(coreImpl), initData);
         core = AoxcCore(payable(address(proxy)));
@@ -59,7 +57,7 @@ contract AOXCoreMasterTest is Test {
         core.mint(user, amount);
 
         // FIX: 3 parametre (address, bool, reason)
-        vm.prank(mockSentinel); 
+        vm.prank(mockSentinel);
         core.setRestrictionStatus(user, true, "MALICIOUS_ACTIVITY_DETECTED");
         assertTrue(core.isRestricted(user), "Restriction failed to apply");
     }
@@ -82,20 +80,13 @@ contract AOXCoreMasterTest is Test {
         recoverAmount = bound(recoverAmount, 1, totalAsset);
 
         uint256 nonce = core.nonces(aiNode);
-        
+
         // EIP-712 StructHash
-        bytes32 structHash = keccak256(
-            abi.encode(
-                keccak256("NeuralSignal(uint256 riskScore,uint256 nonce)"), 
-                riskScore, 
-                nonce
-            )
-        );
+        bytes32 structHash =
+            keccak256(abi.encode(keccak256("NeuralSignal(uint256 riskScore,uint256 nonce)"), riskScore, nonce));
 
         // FIX: DOMAIN_SEPARATOR artık AoxcCore tipi üzerinden erişilebilir
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", core.DOMAIN_SEPARATOR(), structHash)
-        );
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", core.DOMAIN_SEPARATOR(), structHash));
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(aiNodeKey, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
@@ -103,11 +94,11 @@ contract AOXCoreMasterTest is Test {
         // Neural Guard Lock
         vm.prank(aiNode);
         core.processNeuralSignal(riskScore, nonce, signature);
-        
+
         // LockCore'u admin olarak çağıralım (veya sentinel tetiklesin)
         vm.prank(admin);
         core.lockCore();
-        
+
         assertTrue(core.isCoreLocked(), "Neural Guard failed to lock Core");
 
         // Recovery

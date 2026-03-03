@@ -10,7 +10,6 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev Integrated with the 10-Point Neural Handshake to prevent malicious patches.
  */
 interface IAoxcAutoRepair {
-    
     /**
      * @notice Triggered when a function or address is quarantined.
      */
@@ -27,11 +26,8 @@ interface IAoxcAutoRepair {
      * @param target The address being isolated.
      * @param packet The 10-point handshake proof confirming the anomaly.
      */
-    function triggerEmergencyQuarantine(
-        bytes4 selector, 
-        address target, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function triggerEmergencyQuarantine(bytes4 selector, address target, IAoxcCore.NeuralPacket calldata packet)
+        external;
 
     /**
      * @notice Rules 3, 9 & 10: Executes an autonomous logic swap (patch).
@@ -53,11 +49,7 @@ interface IAoxcAutoRepair {
      * @notice Rules 5 & 6: Re-enables a quarantined function after verification.
      * @param packet The 10-point handshake confirming system stability.
      */
-    function liftQuarantine(
-        bytes4 selector, 
-        address target, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function liftQuarantine(bytes4 selector, address target, IAoxcCore.NeuralPacket calldata packet) external;
 
     /*//////////////////////////////////////////////////////////////
                             RECOVERY ANALYTICS

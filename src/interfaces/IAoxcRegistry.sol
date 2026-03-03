@@ -11,7 +11,6 @@ import {IAoxcCore} from "./IAoxcCore.sol";
  * @dev V3.0: Enforces the 10-Point Neural Handshake for every social and state change.
  */
 interface IAoxcRegistry {
-    
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
@@ -29,7 +28,7 @@ interface IAoxcRegistry {
     function userToCellMap(address user) external view returns (uint256);
     function cellLockdown(uint256 cellId) external view returns (bool);
     function getCitizenRecord(address member) external view returns (AoxcStorage.CitizenRecord memory);
-    
+
     function getReputationParams() external view returns (uint256 maxRep, uint256 qThreshold, uint256 rThreshold);
     function getActiveCell() external view returns (uint256);
     function getQuantumLimits() external view returns (uint256 minQuantum, uint256 maxQuantum);
@@ -52,29 +51,17 @@ interface IAoxcRegistry {
      * @param adjustment Amount to add/subtract (e.g., +100, -50).
      * @param packet The 10-point handshake providing reasonCode and riskScore.
      */
-    function adjustReputation(
-        address member, 
-        int256 adjustment, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function adjustReputation(address member, int256 adjustment, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Rule 8 & 10: Triggers lockdown for a specific network cell.
      */
-    function triggerCellLockdown(
-        uint256 cellId, 
-        bool status, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function triggerCellLockdown(uint256 cellId, bool status, IAoxcCore.NeuralPacket calldata packet) external;
 
     /**
      * @notice Rule 7: Reports an anomaly detected by off-chain neural nodes.
      */
-    function reportNeuralAnomaly(
-        address member, 
-        bytes32 alertCode, 
-        IAoxcCore.NeuralPacket calldata packet
-    ) external;
+    function reportNeuralAnomaly(address member, bytes32 alertCode, IAoxcCore.NeuralPacket calldata packet) external;
 
     /*//////////////////////////////////////////////////////////////
                             SYSTEM CONTROL
