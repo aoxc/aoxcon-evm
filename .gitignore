@@ -1,62 +1,76 @@
 # ==============================================================================
 # 🧠 AOXCORE PROTOCOL - NEURAL ARCHITECTURE GIT SPEC
+# VERSION: 5.0.0 "Obsidian Shield"
 # ==============================================================================
 
-# --- 🛠️ FOUNDRY & COMPILER ---
-# Her forge build sonrası değişen, gereksiz yükler
+# --- 🛠️ FOUNDRY & COMPILER (FORGE SPECIFIC) ---
+# Derleme çıktıları ve geçici dosyalar
 out/
 cache/
 foundry.lock
-# X-Layer özel derleme çıktıları
+# X-Layer & EVM özel derleme çıktıları
 artifacts/
 
-# --- 📦 DEPENDENCIES ---
-# Kütüphaneler 'lib' altında tutulur, submodule kullanmıyorsan ignore etme. 
-# Ama node_modules kesinlikle gitmemeli.
+# --- 📦 DEPENDENCIES & LIBRARIES ---
+# KRİTİK: Eğer kütüphaneleri git submodule veya npm ile yönetiyorsan, 
+# lib/ klasörünün içeriğinin gitmesine gerek yok.
+lib/
 node_modules/
 dist/
+build/
+.vite/
+.yarn/
+!.yarn/patches/
+!.yarn/releases/
 
-# --- 🔐 SECRETS & NEURAL KEYS ---
-# KRİTİK: Private key ve RPC adreslerini asla commit etme!
+# --- 🔐 SECRETS & NEURAL KEYS (ZERO TRUST) ---
+# Private key ve RPC adreslerini sızdırmayı imkansızlaştırır
 .env
 .env.*
 !.env.example
 *.key
 *.pem
-# AI Sentinel yerel imza logları
+*.json.gpg
+# AI Sentinel yerel imza ve gizli loglar
 secrets/
+.secret*
 
-# --- 📡 BROADCAST & CHAIN DATA ---
-# Zincir üstü işlem kayıtları (Sadece son başarılı run'ı tut, gerisini sil)
+# --- 📡 BROADCAST & CHAIN DATA (BLOCKCHAIN SPEC) ---
+# Sadece en son başarılı dağıtım (deployment) kaydını tutar
 broadcast/
 !broadcast/*/run-latest.json
 /broadcast/*/31337/
 /broadcast/**/dry-run/
-# Yerel node logları
+# Yerel test node (Anvil) kayıtları
 anvil.log
+*.trace
 
 # --- 📊 TESTING & NEURAL REPORTS ---
-# Test sonuçları ve Gas analizleri
+# Gas analizleri ve audit raporları (History kirletmemeli)
 reports/
 coverage/
-.lcov
+*.lcov
 gas-report.txt
 .gas-snapshot
-# AI Risk analiz raporları
+.sturdy.json
+# AI Risk analiz sonuçları
 neural-audit-results/
 
-# --- 🚀 UPGRADE & DEPLOYMENT ---
-# Scriptlerin geçici dosyaları
+# --- 🚀 DEPLOYMENT & UPGRADE TEMP ---
 upgrade/temp/
 *.log
+npm-debug.log*
+yarn-debug.log*
 
-# --- 💻 OS & IDE (PROFESSIONAL) ---
+# --- 💻 OS & IDE (PROFESSIONAL CLEANUP) ---
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 *.swp
 *.swo
+*.bak
+*.tmp
 
 # ==============================================================================
 # 🌊 AOXCAN SECURITY - END OF SPEC
