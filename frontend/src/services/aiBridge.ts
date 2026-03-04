@@ -6,15 +6,9 @@ import {
     getLogs,
     getAoxcBalance 
 } from './xlayer'; 
-import { formatGwei, isAddress } from 'viem'; // viem daha hafiftir
+import { isAddress } from 'viem';
 import { getGeminiResponse } from './geminiSentinel';
 import { ethers } from 'ethers';
-
-/**
- * @title AOXC Neural Bridge - Hardened Version (v3.0)
- * @dev Güvenlik seviyesi: Maximum. 
- * AI yanıtları sanitize edilir, RPC hataları izole edilir.
- */
 
 export interface AIAnalysisResult {
     verdict: 'VERIFIED' | 'WARNING' | 'REJECTED';
@@ -31,18 +25,21 @@ export const analyzeTransaction = async (tx: {
     value?: string 
 }): Promise<AIAnalysisResult> => {
     
-    // 1. ADIM: INPUT VALIDATION (Girdi Güvenliği)
     if (!isAddress(tx.to)) {
-        return { verdict: 'REJECTED', riskScore: 100, details: "INVALID_TARGET_ADDRESS", simulatedGas: '0', timestamp: Date.now() };
+        return { 
+            verdict: 'REJECTED', 
+            riskScore: 100, 
+            details: "INVALID_TARGET_ADDRESS", 
+            simulatedGas: '0', 
+            timestamp: Date.now() 
+        };
     }
 
-    // 2. ADIM: EVM SİMÜLASYONU (Sandboxing)
-    // İşlem gerçekleşmeden önce blockchain kopyasında denenir.
-    const simulation = await simulateTransaction(
+    const simulation: any = await simulateTransaction(
         tx.to, 
         tx.data, 
         BigInt(tx.value || '0')
-    ).catch(() => ({ success: false, error: "SIMULATION_CRASH" }));
+    ).catch(() => ({ success: false, error: "SIMULATION_CRASH", gasEstimate: "0" }));
 
     if (!simulation.success) {
         return {
@@ -56,11 +53,9 @@ export const analyzeTransaction = async (tx: {
 
     const gasUsed = BigInt(simulation.gasEstimate || '0');
     
-    // 3. ADIM: AI SEMANTİK ANALİZ (Prompt Hardening)
-    // Gemini'ye sadece analiz yaptırmıyoruz, onu bir JSON dönmeye zorluyoruz.
     const aiContext = {
         target: tx.to,
-        method_id: tx.data.slice(0, 10), // İlk 4 byte (Sighash)
+        method_id: tx.data.slice(0, 10),
         gas_estimate: gasUsed.toString(),
         value: tx.value || '0'
     };
@@ -77,29 +72,26 @@ export const analyzeTransaction = async (tx: {
 
     let aiAnalysisRaw = "";
     try {
-        aiAnalysisRaw = await getGeminiResponse(securityPrompt, aiContext);
+        aiAnalysisRaw = await getGeminiResponse(securityPrompt, JSON.stringify(aiContext));
     } catch (e) {
         aiAnalysisRaw = "AI_OFFLINE_FALLBACK_RISK_DETECTED";
     }
 
-    // 4. ADIM: ÇOK KATMANLI RİSK HESAPLAMA (Scoring Matrix)
     let riskScore = 0;
 
-    // A. Teknik Riskler
-    if (gasUsed > 800000n) riskScore += 30; // Karmaşık işlemler risklidir
-    if (tx.to === ethers.ZeroAddress) riskScore += 100; // Zero address gönderimi bloklanır
+    if (gasUsed > 800000n) riskScore += 30;
+    if (tx.to === ethers.ZeroAddress) riskScore += 100;
 
-    // B. AI Kelime Analizi (Whitelist/Blacklist)
     const criticalThreats = ["drain", "transferall", "delegatecall", "ownership", "approve", "permit"];
-    const foundThreats = criticalThreats.filter(word => aiAnalysisRaw.toLowerCase().includes(word));
+    const foundThreats = criticalThreats.filter(word => 
+        typeof aiAnalysisRaw === 'string' && aiAnalysisRaw.toLowerCase().includes(word)
+    );
     riskScore += (foundThreats.length * 20);
 
-    // C. Acil Durum: Eğer AI "danger" veya "malicious" diyorsa puanı direkt yükselt
-    if (/danger|malicious|unsafe|exploit/i.test(aiAnalysisRaw)) {
+    if (/danger|malicious|unsafe|exploit/i.test(String(aiAnalysisRaw))) {
         riskScore += 50;
     }
 
-    // 5. ADIM: NİHAİ MÜHÜR (Final Verdict)
     const score = Math.min(riskScore, 100);
     let finalVerdict: AIAnalysisResult['verdict'] = 'VERIFIED';
     
@@ -111,7 +103,7 @@ export const analyzeTransaction = async (tx: {
         riskScore: score,
         details: score < 45 ? "AOXC Neural Guard: Güvenli." : `Risk tespit edildi: ${foundThreats.join(', ')}`,
         simulatedGas: gasUsed.toString(),
-        aiCommentary: aiAnalysisRaw,
+        aiCommentary: typeof aiAnalysisRaw === 'string' ? aiAnalysisRaw : JSON.stringify(aiAnalysisRaw),
         timestamp: Date.now()
     };
 };

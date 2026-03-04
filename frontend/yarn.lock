@@ -2027,6 +2027,7 @@ __metadata:
     buffer: "npm:^6.0.3"
     clsx: "npm:^2.1.1"
     dotenv: "npm:^17.3.1"
+    esbuild: "npm:^0.27.3"
     eslint: "npm:^10.0.2"
     eslint-config-prettier: "npm:^10.1.8"
     eslint-plugin-jsx-a11y: "npm:^6.10.2"
@@ -3196,7 +3197,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.27.0":
+"esbuild@npm:^0.27.0, esbuild@npm:^0.27.3":
   version: 0.27.3
   resolution: "esbuild@npm:0.27.3"
   dependencies:

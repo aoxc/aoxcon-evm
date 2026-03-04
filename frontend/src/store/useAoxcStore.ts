@@ -48,7 +48,6 @@ export interface PendingTx {
 }
 
 interface AoxcState {
-    // --- Telemetry Properties ---
     blockNumber: number;
     epochTime: number;
     networkStatus: 'healthy' | 'warning' | 'critical';
@@ -56,25 +55,20 @@ interface AoxcState {
     gasEfficiency: number;
     isProcessing: boolean;
     permissionLevel: number;
-    
-    // --- Data Streams ---
     logs: Log[];
     notifications: Notification[];
     pendingTransactions: PendingTx[];
     ledgerEntries: LedgerEntry[];
-    analyticsData: any[]; // Used by NeuralAnalytics.tsx
+    analyticsData: any[];
     chatMessages: Array<{ id: string; content: string; role: 'user' | 'ai'; timestamp: number }>;
-    
-    // --- UI State ---
     activeView: string;
-    activeNotary: any | null; // Used by ContractNotary.tsx
+    activeNotary: any | null;
     upgradeAvailable: boolean;
     isMobileMenuOpen: boolean;
     isRightPanelOpen: boolean;
-    isSidebarCollapsed: boolean; // Used by Sidebar.tsx
-    repairState: 'stable' | 'syncing' | 'idle'; // Used by ModularControl.tsx
+    isSidebarCollapsed: boolean;
+    repairState: 'stable' | 'syncing' | 'idle';
     repairTarget: string | null;
-    
     statusMatrix: {
         core: StatusColor;
         access: StatusColor;
@@ -82,8 +76,6 @@ interface AoxcState {
         infra: StatusColor;
         gov: StatusColor;
     };
-
-    // --- Actions ---
     syncNetwork: () => Promise<void>;
     addLog: (message: string, type?: Log['type']) => void;
     addNotification: (message: string, type: Notification['type']) => void;
@@ -107,7 +99,6 @@ const REGISTRY_ADDRESS = import.meta.env.VITE_AOXC_REGISTRY_ADDR || "0x71C7656EC
 
 export const useAoxcStore = create<AoxcState>()(
     subscribeWithSelector((set, get) => ({
-        // --- INITIAL STATE (Resolves TS2339) ---
         blockNumber: 0,
         epochTime: Math.floor(Date.now() / 1000),
         networkStatus: 'healthy',
@@ -137,7 +128,6 @@ export const useAoxcStore = create<AoxcState>()(
             gov: 'green'
         },
 
-        // --- CORE ACTIONS ---
         syncNetwork: async () => {
             try {
                 const provider = getProvider(ChainId.MAINNET);
@@ -226,7 +216,6 @@ export const useAoxcStore = create<AoxcState>()(
             }
         },
 
-        // --- UI & HELPER ACTIONS ---
         incrementBlock: () => set(state => ({ blockNumber: state.blockNumber + 1 })),
         setPermissionLevel: (level) => set({ permissionLevel: level }),
         setActiveView: (view) => set({ activeView: view }),

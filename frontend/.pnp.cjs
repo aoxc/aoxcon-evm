@@ -45,6 +45,7 @@ const RAW_RUNTIME_STATE =
           ["buffer", "npm:6.0.3"],\
           ["clsx", "npm:2.1.1"],\
           ["dotenv", "npm:17.3.1"],\
+          ["esbuild", "npm:0.27.3"],\
           ["eslint", "virtual:f6587abe1c12aab986e5bea5c9f77ad4e7ef257e2a8fa4bfc046dd25f39e0b2cf87497d199264501c4559cc093d1ce6e9994c60511e409f5c683b7f66f2a85fe#npm:10.0.2"],\
           ["eslint-config-prettier", "virtual:f6587abe1c12aab986e5bea5c9f77ad4e7ef257e2a8fa4bfc046dd25f39e0b2cf87497d199264501c4559cc093d1ce6e9994c60511e409f5c683b7f66f2a85fe#npm:10.1.8"],\
           ["eslint-plugin-jsx-a11y", "virtual:f6587abe1c12aab986e5bea5c9f77ad4e7ef257e2a8fa4bfc046dd25f39e0b2cf87497d199264501c4559cc093d1ce6e9994c60511e409f5c683b7f66f2a85fe#npm:6.10.2"],\
@@ -2686,6 +2687,7 @@ const RAW_RUNTIME_STATE =
           ["buffer", "npm:6.0.3"],\
           ["clsx", "npm:2.1.1"],\
           ["dotenv", "npm:17.3.1"],\
+          ["esbuild", "npm:0.27.3"],\
           ["eslint", "virtual:f6587abe1c12aab986e5bea5c9f77ad4e7ef257e2a8fa4bfc046dd25f39e0b2cf87497d199264501c4559cc093d1ce6e9994c60511e409f5c683b7f66f2a85fe#npm:10.0.2"],\
           ["eslint-config-prettier", "virtual:f6587abe1c12aab986e5bea5c9f77ad4e7ef257e2a8fa4bfc046dd25f39e0b2cf87497d199264501c4559cc093d1ce6e9994c60511e409f5c683b7f66f2a85fe#npm:10.1.8"],\
           ["eslint-plugin-jsx-a11y", "virtual:f6587abe1c12aab986e5bea5c9f77ad4e7ef257e2a8fa4bfc046dd25f39e0b2cf87497d199264501c4559cc093d1ce6e9994c60511e409f5c683b7f66f2a85fe#npm:6.10.2"],\
