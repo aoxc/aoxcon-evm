@@ -1,24 +1,40 @@
-# 1. Ana dizine çık
+# Ana dizinde olduğundan emin ol
 cd ~/Work/AOXCORE
 
-# 2. Varsa alt klasörlerdeki kalıntıları temizle (Çakışmayı önlemek için)
-rm -f backend/.gitignore frontend/.gitignore cli/.gitignore contracts/.gitignore
-
-# 3. Master .gitignore dosyasını oluştur (Verdiğin içeriği buraya yazıyoruz)
+# Master .gitignore dosyasını AI ve Özel Veri korumasıyla güncelle
 cat <<EOF > .gitignore
 # ==============================================================================
-# 🧠 AOXCORE PROTOCOL | NEURAL ARCHITECTURE GIT SPEC
-# VERSION: 6.0.0 "Architect Edition" - Hybrid Protection
+# 🧠 AOXCORE PROTOCOL | NEURAL & BLOCKCHAIN HYBRID SPEC
+# VERSION: 7.0.0 "Sentinel-Shield" - Full Protection
 # ==============================================================================
 
-# --- 🛠️ FOUNDRY & COMPILER (ROOT SPECIFIC) ---
+# --- 🤖 AI & MACHINE LEARNING (MUST BE EXCLUDED) ---
+# Model ağırlıkları ve devasa veri setleri GitHub'a gitmemeli
+**/model_hub/
+**/outputs/
+**/data/*.jsonl
+**/data/*.csv
+**/*.safetensors
+**/*.onnx
+**/*.bin
+**/*.pt
+**/*.pth
+
+# --- 🧪 TRAINING LOGS & RUNTIME ---
+**/runs/
+**/checkpoint-*/
+**/__pycache__/
+**/*.pyc
+.ipynb_checkpoints/
+
+# --- 🛠️ FOUNDRY & SMART CONTRACTS ---
 /out/
 /cache/
 /artifacts/
 foundry.lock
-
-# --- 📦 DEPENDENCIES & LIBRARIES ---
 /lib/
+
+# --- 📦 DEPENDENCIES & WEB ---
 node_modules/
 dist/
 build/
@@ -27,7 +43,7 @@ build/
 !.yarn/patches/
 !.yarn/releases/
 
-# --- 🔐 SECRETS & NEURAL KEYS ---
+# --- 🔐 SECRETS & NEURAL KEYS (CRITICAL) ---
 .env
 .env.*
 !.env.example
@@ -36,6 +52,7 @@ build/
 *.json.gpg
 secrets/
 .secret*
+**/config_private.py
 
 # --- 📡 BLOCKCHAIN & SENTINEL DATA ---
 broadcast/
@@ -53,13 +70,6 @@ gas-report.txt
 .gas-snapshot
 neural-audit-results/
 
-# --- 🚀 RUNTIME & LOGS ---
-*.log
-npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
-panic.log
-
 # --- 💻 OS & IDE ---
 .DS_Store
 Thumbs.db
@@ -74,4 +84,4 @@ Thumbs.db
 *.temp
 EOF
 
-echo "🛡️ Master-Shield .gitignore aktif edildi."
+echo "🛡️ Sentinel-Shield .gitignore (AI + Blockchain) aktif edildi."
