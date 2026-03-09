@@ -1,118 +1,114 @@
-# AOXCORE — Enterprise DAO, Security, and AI Governance Stack
+<div align="center">
 
-AOXCORE is a modular monorepo for building an enterprise-grade governance and security platform at the intersection of blockchain protocols and AI-assisted decision systems.
+<a href="https://github.com/aoxc/aoxcore">
+  <img src="logos/aoxc_transparent.png" alt="AOXCORE Logo" width="180">
+</a>
 
-The repository is organized around one strategic objective:
+# 🌐 AOXCORE
+### Enterprise DAO, Security, and AI Governance Stack on XLayer
 
-> Deliver a deterministic, auditable, and upgrade-safe DAO execution environment where AI can assist operations under strict policy boundaries.
-
----
-
-## Repository Structure
-
-### 1) Protocol Layer (`/src`, `/test`, `/script`)
-- Upgradeable Solidity modules (UUPS + namespaced storage patterns).
-- DAO governance, treasury/finance, registry, security sentinel, and auto-repair primitives.
-- Foundry-based validation (unit, integration, fuzz).
-
-### 2) Service Layer (`/backend`)
-- Sentinel API for AI-assisted risk analysis.
-- Structured, correlation-aware logging model.
-- Validation and controller boundaries for safer request handling.
-
-### 3) Interface Layer (`/frontend`)
-- React-based operational console for governance, audit trails, and system telemetry.
-- Operator-first UX for monitoring and intervention workflows.
-
-### 4) Operator Tooling (`/cli`)
-- Command-driven operational utilities.
-- Lightweight process interface for audit and status flows.
-
-### 5) Program Governance & Delivery (`/docs`, workflow files)
-- Security hardening roadmap.
-- Development evolution plan.
-- CI guardrails for slot safety and Solidity test execution.
+[![Network](https://img.shields.io/badge/Network-XLayer%20Mainnet-blueviolet?style=for-the-badge&logo=okx)](https://www.okx.com/xlayer)
+[![Security](https://img.shields.io/badge/Security-Hardening_Phase-orange?style=for-the-badge&logo=shield)](docs/SECURITY.md)
+[![Status](https://img.shields.io/badge/Build-Active_Development-gold?style=for-the-badge)](docs/DEVELOPMENT_FULL_EVOLUTION_PLAN.md)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 ---
 
-## Enterprise Design Principles
+**AOXCORE** is a modular monorepo engineered for building enterprise-grade governance and security platforms at the intersection of blockchain protocols and AI-assisted decision systems.
 
-1. **Determinism before automation**
-   - AI does not replace governance controls.
-   - All privileged actions remain policy-gated and auditable.
+> **🏛 Institutional Hardening Notice:** This repository is currently in its **Core Hardening Phase**. While the architectural foundations are established, we are progressively tightening security gates and verifying formal invariants on the XLayer ZK-Rollup. We welcome institutional collaboration during this pre-production cycle.
 
-2. **Upgrade safety by default**
-   - Unique storage namespaces.
-   - Migration rehearsal and rollout discipline.
-
-3. **Logs as operational truth**
-   - Correlation IDs across services.
-   - Structured logs for incident forensics.
-
-4. **Separation of duties**
-   - Governance, audit, and upgrade permissions are role-separated.
-
-5. **Progressive hardening**
-   - CI gates, regression coverage, and explicit remediation plans.
+</div>
 
 ---
 
-## Quick Start
+## 🏗 Repository Architecture
 
-### Protocol (Foundry)
+The stack is partitioned into distinct operational layers to ensure strict separation of concerns and a minimized attack surface:
+
+### 1. Protocol Layer (`/src`, `/test`, `/script`)
+* **Upgradeable Solidity:** UUPS (Universal Upgradeable Proxy Standard) + namespaced storage patterns for long-term storage integrity.
+* **Core Primitives:** DAO governance, treasury/finance, registry, and "Security Sentinel" auto-repair modules.
+* **XLayer-Native Validation:** Comprehensive Foundry suite including unit, integration, and fuzz testing optimized for L2 execution.
+
+
+
+### 2. Intelligent Service Layer (`/backend`)
+* **Sentinel API:** AI-augmented risk analysis operating within deterministic policy boundaries.
+* **Forensic Logging:** Structured, correlation-aware logging model for enterprise-grade incident response.
+* **Safety Boundaries:** Strict controller validation and boundary checks for all off-chain requests.
+
+### 3. Interface Layer (`/frontend`)
+* **Operational Console:** React-based telemetry for monitoring governance, audit trails, and system health.
+* **Operator-First UX:** Optimized for real-time monitoring, intervention workflows, and administrative oversight.
+
+### 4. Operator Tooling (`/cli`)
+* **Command-Driven Utilities:** Operational tools for manual audit flows, system state reconciliation, and status reporting.
+
+---
+
+## 🛡 Enterprise Design Principles
+
+Our methodology prioritizes **systemic stability** and **determinism** over rapid automation:
+
+1.  **Determinism before Automation:** AI serves as a support tool; it does not replace governance controls. All privileged actions remain policy-gated and auditable.
+2.  **Upgrade Safety by Default:** Unique storage namespaces and mandatory migration rehearsal discipline to prevent storage collisions.
+3.  **Logs as Operational Truth:** End-to-end correlation IDs across all services for seamless forensic auditing and incident forensics.
+4.  **Separation of Duties:** Governance, audit, and upgrade permissions are cryptographically role-separated.
+5.  **Progressive Hardening:** CI gates for slot-safety, regression coverage, and explicit remediation plans.
+
+---
+
+## 🚀 Quick Start
+
+### Protocol Engineering (Foundry)
 ```bash
+# Build and verify storage slot safety
 forge build
-forge test
-```
+python script/check_storage_slots.py
 
-### Backend API
-```bash
+# Run comprehensive test suite
+forge test
+Backend Sentinel API
+Bash
 cd backend
 npm install
 npm run dev
-```
-
-### Frontend
-```bash
+Frontend Operational Console
+Bash
 cd frontend
 npm install
 npm run dev
-```
+🔍 Logging and Operational Governance
+AOXCORE utilizes structured, high-fidelity logging to ensure institutional-grade security:
 
-### Slot Safety Gate
-```bash
-python script/check_storage_slots.py
-```
+Request Tracking: Every inbound backend request is assigned a unique Request ID.
 
----
+Event Categorization: Security-sensitive flows emit explicit event categories for real-time monitoring.
 
-## Logging and Operational Governance
+Technical Context: Error responses preserve operator-safe detail while logging technical context for forensics.
 
-AOXCORE uses structured logs to improve security and operations quality.
+Strategic Documentation:
 
-- Each inbound backend request receives a request ID.
-- Security-sensitive flows emit explicit event categories.
-- Error responses preserve operator-safe detail while logging technical context.
+📑 Logging & Operations Standard
 
-See:
-- `docs/LOGGING_AND_OPERATIONS_STANDARD.md`
-- `docs/DEVELOPMENT_FULL_EVOLUTION_PLAN.md`
-- `docs/XLAYER_SUI_FULL_GATEWAY_BLUEPRINT.md`
-- `docs/WEB_PUBLISH_AND_RC_CHECKLIST.md`
-- `docs/WEB_PUBLISH_AND_RC_CHECKLIST.md
-- `GOVERNANCE_ENTERPRISE_REFACTOR_PLAN.md`
+📊 Development Evolution Plan
 
----
+📐 XLayer Gateway Blueprint
 
-## Current Focus
+✅ Release Candidate Checklist
 
-- v1 -> v2 migration safety (storage integrity and upgrade confidence).
-- Governance correctness (quorum semantics and execution constraints).
-- AI authority boundaries with full auditability.
-- CI-driven quality gates for continuous hardening.
+⚖️ Enterprise Governance Refactor Plan
 
----
+🎯 Current Engineering Focus
+v1 → v2 Migration Safety: Ensuring storage integrity and upgrade confidence during network-wide transitions on XLayer.
 
-## License
+Governance Correctness: Refining quorum semantics and deterministic execution constraints.
 
-MIT
+AI Authority Sandboxing: Establishing auditable boundaries for AI-assisted operations under strict policy gates.
+
+CI-Driven Hardening: Automating security gates for continuous protocol validation and regression testing.
+
+<div align="center">
+<sub>© 2026 AOXCORE Protocol | Secure. Auditable. Upgrade-Safe.</sub>
+</div>
