@@ -50,6 +50,62 @@ contract AoxcCoreTest is Test {
         core.mint(user, 100);
     }
 
+
+    function test_Mint_Revert_YearlyInflationLimit() public {
+        uint256 yearlyLimit = 6_000_000_000 * 1e18;
+        vm.startPrank(nexus);
+        core.mint(user, yearlyLimit);
+        vm.expectRevert();
+        core.mint(user, 1);
+        vm.stopPrank();
+    }
+
+    function test_Mint_ResetsAfterYearWindow() public {
+        uint256 yearlyLimit = 6_000_000_000 * 1e18;
+        vm.prank(nexus);
+        core.mint(user, yearlyLimit);
+
+        vm.warp(block.timestamp + 366 days);
+
+        vm.prank(nexus);
+        core.mint(user, 1);
+
+        assertEq(core.balanceOf(user), yearlyLimit + 1);
+    }
+
+
+    function test_Revert_InitializeV2_ZeroAdmin() public {
+        AoxcCore impl = new AoxcCore();
+        bytes memory initData = abi.encodeWithSelector(
+            AoxcCore.initializeV2.selector,
+            address(0),
+            nexus,
+            sentinel,
+            address(0),
+            address(0),
+            integrityHash
+        );
+
+        vm.expectRevert(AoxcErrors.Aoxc_InvalidAddress.selector);
+        new ERC1967Proxy(address(impl), initData);
+    }
+
+    function test_Revert_InitializeV2_ZeroIntegrityHash() public {
+        AoxcCore impl = new AoxcCore();
+        bytes memory initData = abi.encodeWithSelector(
+            AoxcCore.initializeV2.selector,
+            address(0),
+            nexus,
+            sentinel,
+            address(0),
+            admin,
+            bytes32(0)
+        );
+
+        vm.expectRevert(abi.encodeWithSelector(AoxcErrors.Aoxc_CustomRevert.selector, "CORE: ZERO_INTEGRITY_HASH"));
+        new ERC1967Proxy(address(impl), initData);
+    }
+
     /*//////////////////////////////////////////////////////////////
                             NEURAL GATING
     //////////////////////////////////////////////////////////////*/
@@ -83,4 +139,63 @@ contract AoxcCoreTest is Test {
         vm.prank(user);
         core.transfer(admin, 100);
     }
+
+
+    function test_TransferVelocity_MaxTx_Enforced() public {
+        vm.prank(nexus);
+        core.mint(user, 2_000);
+
+        vm.prank(admin);
+        core.setTransferVelocity(100, 10_000);
+
+        vm.expectRevert();
+        vm.prank(user);
+        core.transfer(admin, 101);
+    }
+
+    function test_TransferVelocity_DailyLimit_Enforced() public {
+        vm.prank(nexus);
+        core.mint(user, 500);
+
+        vm.prank(admin);
+        core.setTransferVelocity(1_000, 200);
+
+        vm.prank(user);
+        core.transfer(admin, 150);
+
+        vm.expectRevert();
+        vm.prank(user);
+        core.transfer(admin, 60);
+    }
+
+    function test_Blacklisted_Recipient_CannotReceive() public {
+        vm.prank(nexus);
+        core.mint(user, 200);
+
+        vm.prank(sentinel);
+        core.setRestrictionStatus(admin, true, "NO_RECEIVE");
+
+        vm.expectRevert();
+        vm.prank(user);
+        core.transfer(admin, 10);
+    }
+
+    function test_Pause_Unpause_By_Sentinel() public {
+        vm.prank(sentinel);
+        core.pause();
+
+        vm.prank(nexus);
+        core.mint(user, 100);
+
+        vm.expectRevert();
+        vm.prank(user);
+        core.transfer(admin, 1);
+
+        vm.prank(sentinel);
+        core.unpause();
+
+        vm.prank(user);
+        core.transfer(admin, 1);
+    }
+
 }
