@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UnifiedNeuralPacket",
+  "type": "object",
+  "required": [
+    "commandType",
+    "origin",
+    "target",
+    "value",
+    "nonce",
+    "deadline",
+    "reasonCode",
+    "riskScore",
+    "sourceChainId",
+    "payloadHash",
+    "signature"
+  ],
+  "properties": {
+    "commandType": {
+      "type": "string",
+      "enum": ["TRANSFER", "RISK_SCORE", "BLACKLIST", "REPAIR"]
+    },
+    "origin": { "type": "string" },
+    "target": { "type": "string" },
+    "value": { "type": "string" },
+    "nonce": { "type": "integer", "minimum": 0 },
+    "deadline": { "type": "integer", "minimum": 0 },
+    "reasonCode": { "type": "integer", "minimum": 0, "maximum": 65535 },
+    "riskScore": { "type": "integer", "minimum": 0, "maximum": 255 },
+    "sourceChainId": { "type": "integer", "minimum": 1 },
+    "payloadHash": { "type": "string" },
+    "signature": { "type": "string" }
+  }
+}
