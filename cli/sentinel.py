@@ -20,7 +20,10 @@ def _headers() -> dict:
 
 def _get(path: str, timeout: int = 8):
     return requests.get(f"{BACKEND_URL}{path}", headers=_headers(), timeout=timeout)
-
+    h = {"Content-Type": "application/json"}
+    if SENTINEL_TOKEN:
+        h["x-sentinel-token"] = SENTINEL_TOKEN
+    return h
 
 @click.group()
 def cli():
@@ -33,6 +36,7 @@ def status():
     """Check backend health and show operational endpoint state."""
     try:
         resp = _get("/health")
+        resp = requests.get(f"{BACKEND_URL}/health", timeout=8)
         if resp.ok:
             data = resp.json()
             console.print(
@@ -101,6 +105,43 @@ def rehearse(tx_hash: str):
     except Exception as exc:
         console.print(f"[red]Rehearsal request error: {exc}[/red]")
 
+
+@cli.command()
+
+@cli.command()
+@click.option("--tx-hash", default="0x0", help="Synthetic tx hash used for backend pre-check")
+def rehearse(tx_hash: str):
+    """Run lightweight CLI rehearsal: health + synthetic analyze call."""
+    preflight()
+
+    payload = {
+        "prompt": f"Rehearsal audit for {tx_hash}",
+        "context": "migration-rehearsal-cli"
+    }
+
+    try:
+        resp = requests.post(
+            f"{BACKEND_URL}/sentinel/analyze",
+            headers=_headers(),
+            data=json.dumps(payload),
+            timeout=12,
+        )
+        if not resp.ok:
+            console.print(f"[red]Rehearsal analyze failed ({resp.status_code}): {resp.text}[/red]")
+            return
+
+        data = resp.json()
+        table = Table(title="Rehearsal Analyze Result")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value", style="white")
+        for k in ["risk", "action", "reason", "provider"]:
+            table.add_row(k, str(data.get(k)))
+        console.print(table)
+    except Exception as exc:
+        console.print(f"[red]Rehearsal request error: {exc}[/red]")
+
+
+@cli.command()
 
 @cli.command()
 @click.argument("tx_hash")

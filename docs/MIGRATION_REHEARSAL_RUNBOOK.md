@@ -41,6 +41,7 @@ export VERIFY_USER=<sample_user>
 export VERIFY_EXPECTED_ADMIN=<admin_addr>
 export VERIFY_EXPECTED_NEXUS=<nexus_addr>
 export VERIFY_EXPECTED_SENTINEL=<sentinel_addr>
+
 forge script script/VerifyV1ToV2Invariants.s.sol:VerifyV1ToV2Invariants --rpc-url $RPC_URL
 ```
 
