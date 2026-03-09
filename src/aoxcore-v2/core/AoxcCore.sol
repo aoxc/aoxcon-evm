@@ -174,6 +174,50 @@ contract AoxcCore is
         $.isExcludedFromLimits[address(this)] = true;
     }
 
+    /**
+     * @notice Migration initializer for upgrading an existing v1 proxy in-place.
+     * @dev Uses reinitializer(2) because v1 already consumed initializer version 1.
+     *      This path does not mint and preserves all inherited ERC20/AccessControl state.
+     */
+    function migrateFromV1(
+        address v1Token,
+        address nexus,
+        address sentinel,
+        address repair,
+        address upgrader,
+        bytes32 integrityHash
+    ) external reinitializer(2) onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (nexus == address(0) || sentinel == address(0) || upgrader == address(0)) {
+            revert AoxcErrors.Aoxc_InvalidAddress();
+        }
+        if (integrityHash == bytes32(0)) revert AoxcErrors.Aoxc_CustomRevert("CORE: ZERO_INTEGRITY_HASH");
+
+        CoreStorage storage $ = _getStore();
+
+        $.v1TokenLegacy = v1Token;
+        $.nexusHub = nexus;
+        $.sentinelAi = sentinel;
+        $.repairEngine = repair;
+        $.protocolHash = integrityHash;
+        $.lastPulse = block.timestamp;
+        $.maxTransferAmount = 500_000_000 * 1e18;
+        $.dailyTransferLimit = 1_000_000_000 * 1e18;
+        $.anchorSupply = totalSupply();
+        $.yearlyMintLimit = ($.anchorSupply * HARD_CAP_INFLATION_BPS) / AoxcConstants.BPS_DENOMINATOR;
+        $.lastMintTimestamp = block.timestamp;
+        $.mintedThisYear = 0;
+        $.aiFailSafeActive = true;
+
+        _grantRole(AoxcConstants.GOVERNANCE_ROLE, nexus);
+        _grantRole(AoxcConstants.UPGRADER_ROLE, upgrader);
+        _grantRole(AoxcConstants.SENTINEL_ROLE, sentinel);
+        if (repair != address(0)) _grantRole(AoxcConstants.REPAIR_ROLE, repair);
+
+        $.isExcludedFromLimits[nexus] = true;
+        $.isExcludedFromLimits[upgrader] = true;
+        $.isExcludedFromLimits[address(this)] = true;
+    }
+
     /*//////////////////////////////////////////////////////////////
                         NEURAL LOGIC (V3-READY)
     //////////////////////////////////////////////////////////////*/
