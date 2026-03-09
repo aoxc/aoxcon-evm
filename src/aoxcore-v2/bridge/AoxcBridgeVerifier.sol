@@ -45,6 +45,17 @@ contract AoxcBridgeVerifier is Initializable, AccessControlUpgradeable, UUPSUpgr
         );
 
     address public bridgeSigner;
+    bool public paused;
+    mapping(bytes32 => bool) public consumedPackets;
+    mapping(address => uint256) public nonces;
+    mapping(uint256 => bool) public supportedSourceChains;
+    mapping(uint8 => bool) public enabledCommands;
+
+    event PacketVerified(bytes32 indexed packetId, CommandType commandType, address indexed origin, address indexed target);
+    event BridgeSignerUpdated(address indexed previousSigner, address indexed newSigner);
+    event SourceChainSupportUpdated(uint256 indexed chainId, bool enabled);
+    event CommandSupportUpdated(CommandType indexed commandType, bool enabled);
+    event BridgePausedUpdated(bool pausedState);
     mapping(bytes32 => bool) public consumedPackets;
     mapping(address => uint256) public nonces;
 
@@ -62,6 +73,21 @@ contract AoxcBridgeVerifier is Initializable, AccessControlUpgradeable, UUPSUpgr
 
         bridgeSigner = signer;
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        _grantRole(AoxcConstants.GOVERNANCE_ROLE, admin);
+        _grantRole(AoxcConstants.UPGRADER_ROLE, admin);
+
+        supportedSourceChains[AoxcConstants.CHAIN_ID_X_LAYER] = true;
+        enabledCommands[uint8(CommandType.TRANSFER)] = true;
+        enabledCommands[uint8(CommandType.RISK_SCORE)] = true;
+        enabledCommands[uint8(CommandType.BLACKLIST)] = true;
+        enabledCommands[uint8(CommandType.REPAIR)] = true;
+    }
+
+    function verifyAndConsume(UnifiedNeuralPacket calldata packet) external returns (bytes32 packetId) {
+        if (paused) revert AoxcErrors.Aoxc_CustomRevert("BRIDGE: PAUSED");
+        if (!enabledCommands[uint8(packet.commandType)]) revert AoxcErrors.Aoxc_CustomRevert("BRIDGE: COMMAND_DISABLED");
+        if (!supportedSourceChains[packet.sourceChainId]) revert AoxcErrors.Aoxc_ChainNotSupported(packet.sourceChainId);
+        if (packet.origin == address(0) || packet.target == address(0)) revert AoxcErrors.Aoxc_InvalidAddress();
         _grantRole(AoxcConstants.UPGRADER_ROLE, admin);
     }
 
@@ -95,6 +121,28 @@ contract AoxcBridgeVerifier is Initializable, AccessControlUpgradeable, UUPSUpgr
         nonces[packet.origin] = packet.nonce + 1;
 
         emit PacketVerified(packetId, packet.commandType, packet.origin, packet.target);
+    }
+
+    function setBridgeSigner(address newSigner) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        if (newSigner == address(0)) revert AoxcErrors.Aoxc_InvalidAddress();
+        address previous = bridgeSigner;
+        bridgeSigner = newSigner;
+        emit BridgeSignerUpdated(previous, newSigner);
+    }
+
+    function setSourceChainSupport(uint256 chainId, bool enabled) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        supportedSourceChains[chainId] = enabled;
+        emit SourceChainSupportUpdated(chainId, enabled);
+    }
+
+    function setCommandSupport(CommandType commandType, bool enabled) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        enabledCommands[uint8(commandType)] = enabled;
+        emit CommandSupportUpdated(commandType, enabled);
+    }
+
+    function setPaused(bool pausedState) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        paused = pausedState;
+        emit BridgePausedUpdated(pausedState);
     }
 
     function _authorizeUpgrade(address) internal override onlyRole(AoxcConstants.UPGRADER_ROLE) {}

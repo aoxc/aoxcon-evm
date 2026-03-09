@@ -32,6 +32,7 @@ Provide audit-oriented logic-risk analysis for the hybrid migration architecture
 - Micro-optimization implemented:
   - `modeFlags` bitwise control merges critical + opt-in state into a single mapping read in transfer path.
 - Recommended future optimization:
+
 - Recommended future micro-optimization:
   - pack `criticalAddress` and `neuralProtectOptIn` into bitmaps for hot-account sets,
   - use fixed-size keys for permit IDs to reduce ABI encoding overhead.

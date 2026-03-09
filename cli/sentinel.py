@@ -145,6 +145,41 @@ def rehearse(tx_hash: str):
 @cli.command()
 
 @cli.command()
+@click.option("--tx-hash", default="0x0", help="Synthetic tx hash used for backend pre-check")
+def rehearse(tx_hash: str):
+    """Run lightweight CLI rehearsal: health + synthetic analyze call."""
+    preflight()
+
+    payload = {
+        "prompt": f"Rehearsal audit for {tx_hash}",
+        "context": "migration-rehearsal-cli"
+    }
+
+    try:
+        resp = requests.post(
+            f"{BACKEND_URL}/sentinel/analyze",
+            headers=_headers(),
+            data=json.dumps(payload),
+            timeout=12,
+        )
+        if not resp.ok:
+            console.print(f"[red]Rehearsal analyze failed ({resp.status_code}): {resp.text}[/red]")
+            return
+
+        data = resp.json()
+        table = Table(title="Rehearsal Analyze Result")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value", style="white")
+        for k in ["risk", "action", "reason", "provider"]:
+            table.add_row(k, str(data.get(k)))
+        console.print(table)
+    except Exception as exc:
+        console.print(f"[red]Rehearsal request error: {exc}[/red]")
+
+
+@cli.command()
+
+@cli.command()
 @click.argument("tx_hash")
 @click.option("--context", default="", help="Optional context text for AI analysis")
 def audit(tx_hash: str, context: str):

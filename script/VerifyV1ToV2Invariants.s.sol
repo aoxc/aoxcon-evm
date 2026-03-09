@@ -6,7 +6,6 @@ import "forge-std/Script.sol";
 import "aoxc-v1/AOXC.sol";
 import "aoxc-v2/core/AoxcCore.sol";
 import "aoxc-v2/libraries/AoxcConstants.sol";
- codex/hello
 import "aoxc-v2/libraries/AoxcConstants.sol";
  develop
 
@@ -32,6 +31,7 @@ contract VerifyV1ToV2Invariants is Script {
         require(v2.hasRole(0x00, expectedAdmin), "VERIFY: missing DEFAULT_ADMIN_ROLE");
         require(v2.hasRole(AoxcConstants.GOVERNANCE_ROLE, expectedNexus), "VERIFY: missing GOVERNANCE_ROLE");
         require(v2.hasRole(AoxcConstants.SENTINEL_ROLE, expectedSentinel), "VERIFY: missing SENTINEL_ROLE");
+
 
  codex/hello
         (uint256 yearlyLimit, , ) = v2.getMintPolicy();
