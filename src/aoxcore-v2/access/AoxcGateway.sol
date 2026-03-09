@@ -52,7 +52,8 @@ contract AoxcGateway is
         mapping(bytes32 => bool) processedMigrations;
     }
 
-    bytes32 private constant GATEWAY_STORAGE_SLOT = 0x56a64487b9f3630f9a2e6840a3597843644f7725845c2794c489b251a3d00800;
+    // keccak256(abi.encode(uint256(keccak256("aoxc.storage.Gateway")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant GATEWAY_STORAGE_SLOT = 0x8e9558eb18ce5f16eb89b53f6e6d6d6383a4f6be6b67285759ea3f4e0f632e00;
 
     function _getStore() internal pure returns (GatewayStorage storage $) {
         assembly { $.slot := GATEWAY_STORAGE_SLOT }
