@@ -90,6 +90,10 @@ library AoxcErrors {
     error Aoxc_Gov_VetoPeriodActive();
     error Aoxc_Gov_UnauthorizedProposer();
     error Aoxc_Gov_ActionDelayed();
+
+    error Aoxc_Gov_TimelockWindowInvalid(uint256 eta, uint256 minEta, uint256 maxEta);
+    error Aoxc_Gov_TimelockNotReady(uint256 eta, uint256 current);
+    error Aoxc_Gov_NoScheduledAction(bytes32 actionId);
     
     // FIX: AoxcAuditVoice Error (9582) Resolution
     error Aoxc_InvalidThreshold();
