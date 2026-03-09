@@ -289,5 +289,4 @@ contract AoxcCoreTest is Test {
         core.transfer(admin, 1);
     }
 
-
 }

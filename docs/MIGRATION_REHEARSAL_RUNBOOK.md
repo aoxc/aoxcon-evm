@@ -26,7 +26,6 @@ python cli/sentinel.py preflight
 python cli/sentinel.py rehearse --tx-hash 0xfeed
 ```
 
-
 ### Step 2 — Deploy Rehearsal (Testnet/Fork)
 Use the Foundry migration script:
 ```bash
