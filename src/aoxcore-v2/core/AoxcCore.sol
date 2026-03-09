@@ -42,7 +42,9 @@ interface IAoxcV1 {
     function removeFromBlacklist(address account) external;
 }
 
-
+event NeuralTransferPermitPrepared(address indexed origin, address indexed to, uint256 amount, uint256 nonce);
+event NeuralProtectionModeUpdated(address indexed account, bool enabled);
+event CriticalAddressUpdated(address indexed account, bool enabled);
 
 contract AoxcCore is
     Initializable,
@@ -89,6 +91,10 @@ contract AoxcCore is
         mapping(address => bool) isExcludedFromLimits;
         mapping(address => uint256) dailySpent;
         mapping(address => uint256) lastTransferDay;
+        mapping(address => bool) neuralProtectOptIn;
+        mapping(address => bool) criticalAddress;
+        mapping(address => uint256) transferPermitNonce;
+        mapping(bytes32 => bool) transferPermits;
         mapping(address => uint256) userNonces;
         mapping(bytes4 => bool) quarantinedSelectors;
     }
@@ -274,6 +280,36 @@ contract AoxcCore is
         return ($.yearlyMintLimit, $.mintedThisYear, $.lastMintTimestamp);
     }
 
+    function setCriticalAddress(address account, bool enabled) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _getStore().criticalAddress[account] = enabled;
+        emit CriticalAddressUpdated(account, enabled);
+    }
+
+    function setNeuralProtectMode(bool enabled) external {
+        _getStore().neuralProtectOptIn[_msgSender()] = enabled;
+        emit NeuralProtectionModeUpdated(_msgSender(), enabled);
+    }
+
+    function prepareNeuralTransfer(address to, uint256 amount, NeuralPacket calldata packet) external {
+        CoreStorage storage $ = _getStore();
+        if (!(($.criticalAddress[_msgSender()]) || $.neuralProtectOptIn[_msgSender()])) {
+            revert AoxcErrors.Aoxc_CustomRevert("CORE: NEURAL_MODE_DISABLED");
+        }
+        if (packet.origin != _msgSender() || packet.target != to || packet.value != amount) {
+            revert AoxcErrors.Aoxc_CustomRevert("CORE: INVALID_PACKET_BINDING");
+        }
+        if (!IAoxcSentinel($.sentinelAi).validateNeuralPacket(packet)) {
+            revert AoxcErrors.Aoxc_Neural_SecurityVeto(_msgSender(), packet.riskScore);
+        }
+
+        uint256 nonce = $.transferPermitNonce[_msgSender()];
+        bytes32 permitId = keccak256(abi.encode(_msgSender(), to, amount, nonce));
+        $.transferPermits[permitId] = true;
+
+        emit NeuralTransferPermitPrepared(_msgSender(), to, amount, nonce);
+    }
+
+
     /*//////////////////////////////////////////////////////////////
                             OVERRIDES & LINTING
     //////////////////////////////////////////////////////////////*/
@@ -341,6 +377,15 @@ contract AoxcCore is
                 uint256 remaining = $.dailyTransferLimit - $.dailySpent[from];
                 if (amount > remaining) revert AoxcErrors.Aoxc_ExceedsDailyLimit(amount, remaining);
                 $.dailySpent[from] += amount;
+
+                if ($.criticalAddress[from] || $.neuralProtectOptIn[from]) {
+                    uint256 nonce = $.transferPermitNonce[from];
+                    bytes32 permitId = keccak256(abi.encode(from, to, amount, nonce));
+                    if (!$.transferPermits[permitId]) revert AoxcErrors.Aoxc_CustomRevert("CORE: MISSING_NEURAL_PERMIT");
+                    delete $.transferPermits[permitId];
+                    $.transferPermitNonce[from] = nonce + 1;
+                }
+
             }
         }
 

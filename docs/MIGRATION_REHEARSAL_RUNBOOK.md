@@ -27,6 +27,11 @@ forge script script/RehearseV1ToV2.s.sol:RehearseV1ToV2 --rpc-url $RPC_URL --bro
 ```
 
 ### Step 3 — Post-Deploy Verification
+Run invariant verifier:
+```bash
+forge script script/VerifyV1ToV2Invariants.s.sol:VerifyV1ToV2Invariants --rpc-url $RPC_URL
+```
+
 Verify the following invariants:
 - v2 initialized with non-zero `admin/nexus/sentinel`.
 - v2 `getMintPolicy()` window and limits are valid.

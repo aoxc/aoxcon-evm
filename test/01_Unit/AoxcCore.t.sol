@@ -7,16 +7,26 @@ import "aoxc-v2/core/AoxcCore.sol";
 import "aoxc-v2/libraries/AoxcConstants.sol";
 import "aoxc-v2/libraries/AoxcErrors.sol";
 
+contract MockSentinelLocal {
+    function validateNeuralPacket(IAoxcCore.NeuralPacket calldata) external pure returns (bool) {
+        return true;
+    }
+}
+
 contract AoxcCoreTest is Test {
     AoxcCore public core;
     
     address admin = makeAddr("admin");
     address nexus = makeAddr("nexus");
-    address sentinel = makeAddr("sentinel");
+    address sentinel;
+    MockSentinelLocal sentinelMock;
     address user = makeAddr("user");
     bytes32 integrityHash = keccak256("AOXC_V2_GENESIS");
 
     function setUp() public {
+        sentinelMock = new MockSentinelLocal();
+        sentinel = address(sentinelMock);
+
         AoxcCore impl = new AoxcCore();
         bytes memory initData = abi.encodeWithSelector(
             AoxcCore.initializeV2.selector,
@@ -75,6 +85,10 @@ contract AoxcCoreTest is Test {
 
 
     function test_Revert_InitializeV2_ZeroAdmin() public {
+        sentinelMock = new MockSentinelLocal();
+        sentinel = address(sentinelMock);
+
+
         AoxcCore impl = new AoxcCore();
         bytes memory initData = abi.encodeWithSelector(
             AoxcCore.initializeV2.selector,
@@ -91,6 +105,10 @@ contract AoxcCoreTest is Test {
     }
 
     function test_Revert_InitializeV2_ZeroIntegrityHash() public {
+        sentinelMock = new MockSentinelLocal();
+        sentinel = address(sentinelMock);
+
+
         AoxcCore impl = new AoxcCore();
         bytes memory initData = abi.encodeWithSelector(
             AoxcCore.initializeV2.selector,
@@ -197,5 +215,42 @@ contract AoxcCoreTest is Test {
         vm.prank(user);
         core.transfer(admin, 1);
     }
+
+
+
+    function test_CriticalAddress_RequiresNeuralPermit() public {
+        vm.prank(admin);
+        core.setCriticalAddress(user, true);
+
+        vm.prank(nexus);
+        core.mint(user, 100);
+
+        vm.expectRevert();
+        vm.prank(user);
+        core.transfer(admin, 1);
+    }
+
+    function test_CriticalAddress_WithPreparedPermit_AllowsTransfer() public {
+        vm.prank(admin);
+        core.setCriticalAddress(user, true);
+
+        vm.prank(nexus);
+        core.mint(user, 100);
+
+        IAoxcCore.NeuralPacket memory p;
+        p.origin = user;
+        p.target = admin;
+        p.value = 1;
+        p.deadline = uint48(block.timestamp + 1 days);
+        p.riskScore = 1;
+        p.protocolHash = integrityHash;
+
+        vm.prank(user);
+        core.prepareNeuralTransfer(admin, 1, p);
+
+        vm.prank(user);
+        core.transfer(admin, 1);
+    }
+
 
 }
