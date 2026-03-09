@@ -49,7 +49,8 @@ contract AoxcCpex is IAoxcCpex, Initializable, AccessControlUpgradeable, Reentra
 
     // ERC-7201 Compliance Slots
     bytes32 private constant STAKING_STORAGE_SLOT = 0x1f5a1a117560126a10065a38a362244f7d3e0b29845ec26095f36e84d4367b00;
-    bytes32 private constant MAIN_STORAGE_SLOT = 0x27f884a8677c731e8093d6e5a4073f1d8595531d054d5d71c1815e98544e3d00;
+    // keccak256(abi.encode(uint256(keccak256("aoxc.storage.Cpex.Main")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant MAIN_STORAGE_SLOT = 0x6fb5f4c0f3f055e72fd4ef9ce95f6bb4727869a4442f28be79031be2de34de00;
 
     function _getStakeStore() internal pure returns (StakingStorage storage $) {
         assembly { $.slot := STAKING_STORAGE_SLOT }

@@ -119,6 +119,11 @@ contract AoxcCore is
         address admin,
         bytes32 integrityHash
     ) external initializer {
+        if (admin == address(0) || nexus == address(0) || sentinel == address(0)) {
+            revert AoxcErrors.Aoxc_InvalidAddress();
+        }
+        if (integrityHash == bytes32(0)) revert AoxcErrors.Aoxc_CustomRevert("CORE: ZERO_INTEGRITY_HASH");
+
         __ERC20_init("AoxcCore", "AOXC");
         __ERC20Permit_init("AoxcCore");
         __ReentrancyGuard_init();
