@@ -131,6 +131,10 @@ contract AoxcSentinel is
                         SURGICAL INTERCEPTION
     //////////////////////////////////////////////////////////////*/
 
+    /**
+     * @notice Processes high-risk interception reports signed by the AI node.
+     * @dev Reverts when bastion is sealed or contract is paused to prevent stale/unsafe interception writes.
+     */
     function processInterception(
         uint8 riskScore,
         uint256 nonce,
@@ -139,6 +143,7 @@ contract AoxcSentinel is
         bytes calldata signature
     ) external nonReentrant {
         SentinelStorage storage $ = _getStore();
+        if ($.bastionSealed || paused()) revert AoxcErrors.Aoxc_Neural_BastionSealed(block.timestamp);
 
         bytes32 structHash = keccak256(abi.encode(INTERCEPTION_TYPEHASH, riskScore, nonce, target, selector));
         if (_hashTypedDataV4(structHash).recover(signature) != $.aiNodeAddress) {

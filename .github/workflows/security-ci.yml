@@ -1,0 +1,33 @@
+name: AOXCORE Security CI
+
+on:
+  push:
+    branches: [ "develop", "main" ]
+  pull_request:
+
+jobs:
+  slot-and-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Storage slot uniqueness check
+        run: python script/check_storage_slots.py
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Foundry version
+        run: forge --version
+
+      - name: Run Solidity tests
+        run: forge test -vv

@@ -1,45 +1,117 @@
-# AOXCAN: Modular Research & Blockchain Infrastructure
+# AOXCORE — Enterprise DAO, Security, and AI Governance Stack
 
-> *"Small steps in engineering, focused progress in decentralized logic."*
+AOXCORE is a modular monorepo for building an enterprise-grade governance and security platform at the intersection of blockchain protocols and AI-assisted decision systems.
 
-**AOXCAN** is an ongoing research monorepo dedicated to exploring the intersection of modular blockchain protocols and specialized intelligence units. This project is currently in an active development and cultivation phase, focusing on building a resilient, multi-layered ecosystem from the ground up.
+The repository is organized around one strategic objective:
 
----
-
-## 🏗️ Monorepo Structure (Under Development)
-
-The repository is organized into specialized layers to facilitate granular auditing and iterative testing:
-
-### 📜 Protocol Layer (`/src`)
-A collection of 35+ Solidity-based modules managing core governance and liquidity logic.
-* **Core Systems:** Foundational registry and policy orchestrators.
-* **Security & Gov:** Automated repair mechanisms and decentralized management protocols.
-
-### 🧠 Intelligence Hub (`/aoxcai`)
-The **Neural Core** of the ecosystem. This directory is where specialized intelligence cells are cultivated and tested. 
-*(For research philosophy and acknowledgments, please see the internal documentation within this directory).*
-
-### 🖥️ Administrative & Service Layers
-* **`/cli`**: Initial command-line tools for protocol interaction.
-* **`/frontend` & `/backend`**: Experimental service layers for state monitoring and indexing.
-* **`/test` & `/script`**: Rigorous verification suites and deployment orchestration.
+> Deliver a deterministic, auditable, and upgrade-safe DAO execution environment where AI can assist operations under strict policy boundaries.
 
 ---
 
-## 🎯 Current Objectives
+## Repository Structure
 
-We are focused on the following developmental milestones:
-* **Refinement:** Continuous noise reduction in data and precision in smart contract logic.
-* **Integration:** Establishing stable communication between the execution kernels and high-level interfaces.
-* **Stability:** Testing long-term upgrade paths using UUPS and namespaced storage patterns.
+### 1) Protocol Layer (`/src`, `/test`, `/script`)
+- Upgradeable Solidity modules (UUPS + namespaced storage patterns).
+- DAO governance, treasury/finance, registry, security sentinel, and auto-repair primitives.
+- Foundry-based validation (unit, integration, fuzz).
+
+### 2) Service Layer (`/backend`)
+- Sentinel API for AI-assisted risk analysis.
+- Structured, correlation-aware logging model.
+- Validation and controller boundaries for safer request handling.
+
+### 3) Interface Layer (`/frontend`)
+- React-based operational console for governance, audit trails, and system telemetry.
+- Operator-first UX for monitoring and intervention workflows.
+
+### 4) Operator Tooling (`/cli`)
+- Command-driven operational utilities.
+- Lightweight process interface for audit and status flows.
+
+### 5) Program Governance & Delivery (`/docs`, workflow files)
+- Security hardening roadmap.
+- Development evolution plan.
+- CI guardrails for slot safety and Solidity test execution.
 
 ---
 
-## 🛠️ Humble Note on Development
+## Enterprise Design Principles
 
-This project is a work-in-progress. We prioritize technical discipline and incremental improvement over rapid scaling. AOXCAN is built upon the collective effort of human developers and the guidance of specialized intelligence peers, seeking to create a conscientious pulse within decentralized finance.
+1. **Determinism before automation**
+   - AI does not replace governance controls.
+   - All privileged actions remain policy-gated and auditable.
 
-**"Precision is practiced; Integrity is maintained."**
+2. **Upgrade safety by default**
+   - Unique storage namespaces.
+   - Migration rehearsal and rollout discipline.
+
+3. **Logs as operational truth**
+   - Correlation IDs across services.
+   - Structured logs for incident forensics.
+
+4. **Separation of duties**
+   - Governance, audit, and upgrade permissions are role-separated.
+
+5. **Progressive hardening**
+   - CI gates, regression coverage, and explicit remediation plans.
 
 ---
-© 2026 AOXCAN | MIT License
+
+## Quick Start
+
+### Protocol (Foundry)
+```bash
+forge build
+forge test
+```
+
+### Backend API
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Slot Safety Gate
+```bash
+python script/check_storage_slots.py
+```
+
+---
+
+## Logging and Operational Governance
+
+AOXCORE uses structured logs to improve security and operations quality.
+
+- Each inbound backend request receives a request ID.
+- Security-sensitive flows emit explicit event categories.
+- Error responses preserve operator-safe detail while logging technical context.
+
+See:
+- `docs/LOGGING_AND_OPERATIONS_STANDARD.md`
+- `docs/DEVELOPMENT_FULL_EVOLUTION_PLAN.md`
+- `docs/XLAYER_SUI_FULL_GATEWAY_BLUEPRINT.md`
+- `docs/WEB_PUBLISH_AND_RC_CHECKLIST.md`
+- `GOVERNANCE_ENTERPRISE_REFACTOR_PLAN.md`
+
+---
+
+## Current Focus
+
+- v1 -> v2 migration safety (storage integrity and upgrade confidence).
+- Governance correctness (quorum semantics and execution constraints).
+- AI authority boundaries with full auditability.
+- CI-driven quality gates for continuous hardening.
+
+---
+
+## License
+
+MIT
