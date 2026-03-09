@@ -16,7 +16,7 @@ Only the latest versions of the AOXCAN Sentinel modules are supported for securi
 We appreciate the work of independent security researchers. If you find a vulnerability, please follow these steps:
 
 1. **Do not disclose publicly:** Please report the issue privately to protect the AOXCAN treasury and community.
-2. **Report via Email:** Send a detailed report to **security@aoxcan.ai**. 
+2. **Report via Email:** Send a detailed report to **security@aoxcore.com**. 
 3. **Include Details:** Provide a Proof of Concept (PoC), the potential impact, and the Sentinel module affected (e.g., Treasury, Governance, Overseer).
 
 ## 💎 Bounty & Recognition
