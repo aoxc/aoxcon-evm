@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/aoxc/aoxcore">
-  <img src="logos/aoxc_transparent.png" alt="AOXCORE Logo" width="180">
+  <img src="logos/aoxc_transparent.png" alt="AOXCORE Logo" width="180" />
 </a>
 
 # 🌐 AOXCORE
@@ -12,103 +12,300 @@
 [![Status](https://img.shields.io/badge/Build-Active_Development-gold?style=for-the-badge)](docs/DEVELOPMENT_FULL_EVOLUTION_PLAN.md)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
----
+**AOXCORE** is a modular monorepo engineered for enterprise-grade governance, security, and AI-assisted operational control on XLayer.
 
-**AOXCORE** is a modular monorepo engineered for building enterprise-grade governance and security platforms at the intersection of blockchain protocols and AI-assisted decision systems.
-
-> **🏛 Institutional Hardening Notice:** This repository is currently in its **Core Hardening Phase**. While the architectural foundations are established, we are progressively tightening security gates and verifying formal invariants on the XLayer ZK-Rollup. We welcome institutional collaboration during this pre-production cycle.
+> **Institutional Hardening Notice**  
+> This repository is currently in its **Core Hardening Phase**.  
+> Architectural foundations are established while security gates, upgrade guarantees, and validation workflows are being progressively strengthened.
 
 </div>
 
 ---
 
-## 🏗 Repository Architecture
+# Overview
 
-The stack is partitioned into distinct operational layers to ensure strict separation of concerns and a minimized attack surface:
+AOXCORE provides a layered architecture for decentralized governance infrastructure combined with operational intelligence systems.
 
-### 1. Protocol Layer (`/src`, `/test`, `/script`)
-* **Upgradeable Solidity:** UUPS (Universal Upgradeable Proxy Standard) + namespaced storage patterns for long-term storage integrity.
-* **Core Primitives:** DAO governance, treasury/finance, registry, and "Security Sentinel" auto-repair modules.
-* **XLayer-Native Validation:** Comprehensive Foundry suite including unit, integration, and fuzz testing optimized for L2 execution.
+The project focuses on:
 
+- upgrade-safe smart contract infrastructure
+- deterministic governance execution
+- AI-assisted operational analysis under strict policy boundaries
+- enterprise-grade monitoring and logging systems
 
-
-### 2. Intelligent Service Layer (`/backend`)
-* **Sentinel API:** AI-augmented risk analysis operating within deterministic policy boundaries.
-* **Forensic Logging:** Structured, correlation-aware logging model for enterprise-grade incident response.
-* **Safety Boundaries:** Strict controller validation and boundary checks for all off-chain requests.
-
-### 3. Interface Layer (`/frontend`)
-* **Operational Console:** React-based telemetry for monitoring governance, audit trails, and system health.
-* **Operator-First UX:** Optimized for real-time monitoring, intervention workflows, and administrative oversight.
-
-### 4. Operator Tooling (`/cli`)
-* **Command-Driven Utilities:** Operational tools for manual audit flows, system state reconciliation, and status reporting.
+The system is designed to reduce attack surface while ensuring long-term protocol maintainability.
 
 ---
 
-## 🛡 Enterprise Design Principles
+# Key Capabilities
 
-Our methodology prioritizes **systemic stability** and **determinism** over rapid automation:
+### Governance Infrastructure
+DAO governance primitives designed for deterministic execution and upgrade safety.
 
-1.  **Determinism before Automation:** AI serves as a support tool; it does not replace governance controls. All privileged actions remain policy-gated and auditable.
-2.  **Upgrade Safety by Default:** Unique storage namespaces and mandatory migration rehearsal discipline to prevent storage collisions.
-3.  **Logs as Operational Truth:** End-to-end correlation IDs across all services for seamless forensic auditing and incident forensics.
-4.  **Separation of Duties:** Governance, audit, and upgrade permissions are cryptographically role-separated.
-5.  **Progressive Hardening:** CI gates for slot-safety, regression coverage, and explicit remediation plans.
+### Security Sentinel
+Automated security monitoring and anomaly detection pipelines integrated with governance workflows.
+
+### Upgrade Discipline
+Strict upgrade procedures using UUPS proxy patterns with storage integrity guarantees.
+
+### AI Assisted Operations
+AI tools assist operational analysis while remaining constrained by deterministic policy boundaries.
 
 ---
 
-## 🚀 Quick Start
+# Repository Architecture
 
-### Protocol Engineering (Foundry)
-```bash
-# Build and verify storage slot safety
+The repository is organized into layered components.
+
+## Protocol Layer (`/src`, `/test`, `/script`)
+
+Contains the core smart contracts and validation framework.
+
+Components include:
+
+- upgradeable governance contracts
+- treasury and financial primitives
+- registry infrastructure
+- protocol security modules
+- Foundry testing environment
+
+Testing includes:
+
+- unit tests
+- integration tests
+- fuzz testing
+- storage layout validation
+
+---
+
+## Backend Layer (`/backend`)
+
+Operational service layer supporting monitoring, analysis, and automation.
+
+Capabilities include:
+
+- Sentinel risk analysis API
+- structured logging pipelines
+- forensic event tracking
+- operator policy enforcement
+
+---
+
+## Frontend Layer (`/frontend`)
+
+Operational monitoring console.
+
+Features include:
+
+- governance telemetry
+- audit visibility dashboards
+- protocol health monitoring
+- operator workflow controls
+
+---
+
+## CLI Layer (`/cli`)
+
+Command-line tools for protocol operators.
+
+Tools include:
+
+- state inspection utilities
+- governance interaction tools
+- reconciliation and diagnostics scripts
+
+---
+
+# Repository Structure
+
+```
+aoxcore/
+│
+├─ src/            # Solidity smart contracts
+├─ test/           # Foundry test suite
+├─ script/         # Deployment and tooling scripts
+│
+├─ backend/        # Sentinel API and monitoring services
+├─ frontend/       # Operator console
+├─ cli/            # Command-line operational tooling
+│
+├─ docs/           # Documentation and governance specs
+│
+├─ foundry.toml
+├─ package.json
+└─ README.md
+```
+
+---
+
+# Prerequisites
+
+Before running the project locally, ensure the following tools are installed.
+
+- Node.js ≥ 18
+- Foundry toolchain
+- Git
+- Python 3 (for auxiliary validation scripts)
+
+Install Foundry:
+
+```
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+```
+
+---
+
+# Quick Start
+
+## Protocol Engineering
+
+```
 forge build
-python script/check_storage_slots.py
+```
 
-# Run comprehensive test suite
+Run storage validation:
+
+```
+python script/check_storage_slots.py
+```
+
+Run full test suite:
+
+```
 forge test
-Backend Sentinel API
-Bash
+```
+
+Run fuzz tests:
+
+```
+forge test --fuzz
+```
+
+---
+
+## Backend Sentinel API
+
+```
 cd backend
 npm install
 npm run dev
-Frontend Operational Console
-Bash
+```
+
+---
+
+## Frontend Operational Console
+
+```
 cd frontend
 npm install
 npm run dev
-🔍 Logging and Operational Governance
-AOXCORE utilizes structured, high-fidelity logging to ensure institutional-grade security:
+```
 
-Request Tracking: Every inbound backend request is assigned a unique Request ID.
+---
 
-Event Categorization: Security-sensitive flows emit explicit event categories for real-time monitoring.
+# Logging and Observability
 
-Technical Context: Error responses preserve operator-safe detail while logging technical context for forensics.
+AOXCORE uses structured logging designed for forensic analysis.
 
-Strategic Documentation:
+Logging features include:
 
-📑 Logging & Operations Standard
+- request correlation identifiers
+- security event categorization
+- operator-safe error reporting
+- detailed forensic diagnostic logging
 
-📊 Development Evolution Plan
+Logs are treated as a first-class operational artifact.
 
-📐 XLayer Gateway Blueprint
+---
 
-✅ Release Candidate Checklist
+# Upgrade Model
 
-⚖️ Enterprise Governance Refactor Plan
+AOXCORE smart contracts use the **UUPS upgradeable proxy model**.
 
-🎯 Current Engineering Focus
-v1 → v2 Migration Safety: Ensuring storage integrity and upgrade confidence during network-wide transitions on XLayer.
+Upgrade procedures include:
 
-Governance Correctness: Refining quorum semantics and deterministic execution constraints.
+- storage layout validation
+- migration rehearsal
+- multisig governance approval
+- post-upgrade verification
 
-AI Authority Sandboxing: Establishing auditable boundaries for AI-assisted operations under strict policy gates.
+Upgrade safety is treated as a core protocol invariant.
 
-CI-Driven Hardening: Automating security gates for continuous protocol validation and regression testing.
+---
+
+# Security
+
+Security considerations include:
+
+- role-separated governance permissions
+- upgrade authorization controls
+- storage layout integrity checks
+- regression testing
+- fuzz testing
+
+Security documentation is available in:
+
+```
+docs/SECURITY.md
+```
+
+Responsible disclosure guidelines are also included in the repository.
+
+---
+
+# Development Workflow
+
+Typical development flow:
+
+1. implement feature
+2. add tests
+3. run storage validation
+4. run fuzz tests
+5. open pull request
+6. CI validation pipeline executes
+
+Only verified changes are merged into the main branch.
+
+---
+
+# Documentation
+
+Further documentation can be found in the `/docs` directory.
+
+Key documents include:
+
+- Logging & Operations Standard
+- Development Evolution Plan
+- XLayer Gateway Blueprint
+- Release Candidate Checklist
+- Governance Refactor Plan
+
+---
+
+# Contribution Guidelines
+
+Contributions are welcome through pull requests.
+
+All contributions must:
+
+- include appropriate tests
+- maintain upgrade safety guarantees
+- follow repository coding standards
+- pass CI validation
+
+See `docs/CONTRIBUTING.md` for details.
+
+---
+
+# License
+
+This project is licensed under the MIT License.
+
+See the `LICENSE` file for details.
+
+---
 
 <div align="center">
-<sub>© 2026 AOXCORE Protocol | Secure. Auditable. Upgrade-Safe.</sub>
+  <sub>© 2026 AOXCORE Protocol | Secure. Auditable. Upgrade-Safe.</sub>
 </div>
