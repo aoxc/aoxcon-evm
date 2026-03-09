@@ -43,6 +43,10 @@ library AoxcErrors {
     error Aoxc_Neural_SignatureReused(bytes32 id);
     error Aoxc_Neural_IntegrityCheckFailed(); 
     error Aoxc_TemporalCollision();
+    error Aoxc_Neural_ModeDisabled(address account);
+    error Aoxc_Neural_InvalidPacketBinding();
+    error Aoxc_Neural_PermitMissing(address origin, address target, uint256 amount, uint256 nonce);
+    error Aoxc_Neural_PermitExpired(uint256 deadline, uint256 current);
 
     /*//////////////////////////////////////////////////////////////
                         4. FISCAL, VAULT & ASSETS

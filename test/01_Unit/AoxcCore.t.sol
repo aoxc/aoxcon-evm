@@ -88,7 +88,6 @@ contract AoxcCoreTest is Test {
         sentinelMock = new MockSentinelLocal();
         sentinel = address(sentinelMock);
 
-
         AoxcCore impl = new AoxcCore();
         bytes memory initData = abi.encodeWithSelector(
             AoxcCore.initializeV2.selector,
