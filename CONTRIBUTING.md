@@ -1,4 +1,3 @@
-cat << 'EOF' > CONTRIBUTING.md
 # Contributing to AOXCAN Sovereign Ecosystem
 
 ## 🏛️ The Sovereign Mandate
@@ -24,4 +23,4 @@ Approved contributions may be recognized by the **Governance DAO** and potential
 For strategic discussions, join our official channels or reach out via the designated **Gateway Sentinel** protocols.
 
 **"Build with Justice. Code with Honor."**
-EOF
+
