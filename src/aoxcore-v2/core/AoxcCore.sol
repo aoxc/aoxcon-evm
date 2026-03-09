@@ -298,6 +298,7 @@ contract AoxcCore is
         if (enabled) $.modeFlags[account] = flags | MODE_FLAG_CRITICAL;
         else $.modeFlags[account] = flags & ~MODE_FLAG_CRITICAL;
 
+
      
     function setCriticalAddress(address account, bool enabled) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _getStore().criticalAddress[account] = enabled;
@@ -326,6 +327,7 @@ contract AoxcCore is
     function prepareNeuralTransfer(address to, uint256 amount, NeuralPacket calldata packet) external {
         CoreStorage storage $ = _getStore();
         if (!_isNeuralProtected($, _msgSender())) {
+
         if (!(($.criticalAddress[_msgSender()]) || $.neuralProtectOptIn[_msgSender()])) {
  develop
             revert AoxcErrors.Aoxc_Neural_ModeDisabled(_msgSender());

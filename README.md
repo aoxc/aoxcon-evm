@@ -97,6 +97,8 @@ AOXCORE uses structured logs to improve security and operations quality.
 See:
 - `docs/LOGGING_AND_OPERATIONS_STANDARD.md`
 - `docs/DEVELOPMENT_FULL_EVOLUTION_PLAN.md`
+- `docs/XLAYER_SUI_FULL_GATEWAY_BLUEPRINT.md`
+- `docs/WEB_PUBLISH_AND_RC_CHECKLIST.md
 - `GOVERNANCE_ENTERPRISE_REFACTOR_PLAN.md`
 
 ---
