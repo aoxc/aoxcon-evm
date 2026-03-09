@@ -1,6 +1,6 @@
 [profile.default]
 # ==============================================================================
-# --- 🏗️ AOXCAN PROJECT STRUCTURE ---
+# --- 🏗️ PROJECT STRUCTURE ---
 # ==============================================================================
 src = "src"
 out = "out"
@@ -9,30 +9,37 @@ test = "test"
 script = "script"
 
 # ==============================================================================
-# --- 🔗 REMAPPINGS (7 Sentinels Architecture) ---
-# Artık importlar: "aoxcan/core/AoxcanCore.sol" şeklinde otonom olacak.
+# --- 🔗 MODULE REMAPPINGS (v2 Architecture) ---
+# Enables clean imports: import "aoxc-core/AoxcCore.sol";
 # ==============================================================================
 remappings = [
-    "@openzeppelin/contracts=lib/openzeppelin-contracts/contracts",
-    "@openzeppelin/contracts-upgradeable=lib/openzeppelin-contracts-upgradeable/contracts",
-    "forge-std=lib/forge-std/src",
-    "aoxcan=src",
-    "aoxcan-core=src/aoxcan-core",
-    "aoxcan-gov=src/aoxcan-governance",
-    "aoxcan-treasury=src/aoxcan-treasury",
-    "aoxcan-overseer=src/aoxcan-overseer",
-    "aoxcan-security=src/aoxcan-security",
-    "aoxcan-infra=src/aoxcan-infrastructure",
-    "aoxcan-gate=src/aoxcan-gateway"
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+    "forge-std/=lib/forge-std/src/",
+    
+    # Core v2 Module Mapping
+    "aoxc-interfaces/=src/aoxcore-v2/interfaces/",
+    "aoxc-libraries/=src/aoxcore-v2/libraries/",
+    "aoxc-core/=src/aoxcore-v2/core/",
+    "aoxc-access/=src/aoxcore-v2/access/",
+    "aoxc-abstract/=src/aoxcore-v2/abstract/",
+    "aoxc-finance/=src/aoxcore-v2/finance/",
+    "aoxc-gov/=src/aoxcore-v2/gov/",
+    "aoxc-infra/=src/aoxcore-v2/infra/",
+    
+    # Version Aliases
+    "aoxc-v2/=src/aoxcore-v2/",
+    "aoxc-v1/=src/aoxcore-v1/"
 ]
 
 # ==============================================================================
 # --- 🧠 COMPILER & OPTIMIZATION ---
+# Using 0.8.24 for broad EVM compatibility (X-Layer/Polygon CDK)
 # ==============================================================================
-solc_version = "0.8.20" # X-Layer ve modern EVM için daha stabil bir sürüm (veya senin 0.8.33 tercihin)
+solc_version = "0.8.33" 
 optimizer = true
-optimizer_runs = 500 # Gaz maliyeti için biraz daha agresif optimizasyon
-via_ir = true
+optimizer_runs = 500
+via_ir = true 
 
 # ==============================================================================
 # --- 🛡️ SECURITY & VERIFICATION ---
@@ -41,8 +48,11 @@ bytecode_hash = "none"
 extra_output = ["abi", "storageLayout", "metadata"]
 
 [fuzz]
-runs = 1000 # Ciddiyet için fuzz test sayısını artırdık
+runs = 1000 
 
+# ==============================================================================
+# --- 🌐 INFRASTRUCTURE ---
+# ==============================================================================
 [rpc_endpoints]
 xlayer_testnet = "https://testrpc.xlayer.tech"
 

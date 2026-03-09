@@ -2,7 +2,7 @@
 pragma solidity 0.8.33;
 
 import "forge-std/Script.sol";
-import "../src/AOXC.sol";
+import "aoxc-v1/AOXC.sol";
 
 /**
  * @title AOXC_Deployment_V1

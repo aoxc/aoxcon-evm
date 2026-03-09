@@ -3,7 +3,7 @@ pragma solidity 0.8.33;
 
 import "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "../../src/access/AoxcGateway.sol";
+import "aoxc-v2/access/AoxcGateway.sol";
 import "../mocks/MockToken.sol"; // Basit bir ERC20 mock lazım
 import "../mocks/MockSentinel.sol"; // Sentinel dogrulamasi icin
 

@@ -3,11 +3,11 @@ pragma solidity 0.8.33;
 
 import "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "../../src/finance/AoxcVault.sol";
+import "aoxc-v2/finance/AoxcVault.sol";
 import "../mocks/MockCore.sol";
 import "../mocks/MockToken.sol";
-import "../../src/libraries/AoxcConstants.sol";
-import "../../src/libraries/AoxcErrors.sol";
+import "aoxc-v2/libraries/AoxcConstants.sol";
+import "aoxc-v2/libraries/AoxcErrors.sol";
 
 /**
  * @title AoxcVaultTest

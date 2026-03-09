@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "../../src/interfaces/IAoxcCore.sol";
+import "aoxc-v2/interfaces/IAoxcCore.sol";
 
 contract MockCore is IAoxcCore {
     mapping(address => bool) public restricted;

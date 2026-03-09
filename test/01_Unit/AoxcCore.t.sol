@@ -3,9 +3,9 @@ pragma solidity 0.8.33;
 
 import "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "../../src/core/AoxcCore.sol";
-import "../../src/libraries/AoxcConstants.sol";
-import "../../src/libraries/AoxcErrors.sol";
+import "aoxc-v2/core/AoxcCore.sol";
+import "aoxc-v2/libraries/AoxcConstants.sol";
+import "aoxc-v2/libraries/AoxcErrors.sol";
 
 contract AoxcCoreTest is Test {
     AoxcCore public core;

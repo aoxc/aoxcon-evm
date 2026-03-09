@@ -3,9 +3,9 @@ pragma solidity 0.8.33;
 
 import "forge-std/Script.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "../src/core/AoxcCore.sol";
-import "../src/access/AoxcSentinel.sol";
-import "../src/finance/AoxcVault.sol";
+import "aoxc-v2/core/AoxcCore.sol";
+import "aoxc-v2/access/AoxcSentinel.sol";
+import "aoxc-v2/finance/AoxcVault.sol";
 
 /**
  * @title QuantumLeap - AOXC V2 Upgrade & Deployment Script
