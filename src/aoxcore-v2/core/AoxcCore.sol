@@ -70,10 +70,6 @@ contract AoxcCore is
     uint256 private constant GOV_TIMELOCK_MIN = 24 hours;
     uint256 private constant GOV_TIMELOCK_MAX = 48 hours;
 
-    uint256 public constant YEAR_SECONDS = 365 days;
-    uint256 public constant HARD_CAP_INFLATION_BPS = 600;
-    uint256 public constant V1_PARITY_ANCHOR_SUPPLY = 100_000_000_000 * 1e18;
-
     /*//////////////////////////////////////////////////////////////
                 NAMESPACED STORAGE (ERC-7201 COMPLIANT)
     //////////////////////////////////////////////////////////////*/
@@ -104,11 +100,6 @@ contract AoxcCore is
         mapping(bytes32 => uint48) transferPermitExpiry;
         mapping(bytes32 => uint256) scheduledEta;
         mapping(bytes32 => bytes32) scheduledDataHash;
-        mapping(address => bool) neuralProtectOptIn;
-        mapping(address => bool) criticalAddress;
-        mapping(address => uint256) transferPermitNonce;
-        mapping(bytes32 => bool) transferPermits;
-        mapping(bytes32 => uint48) transferPermitExpiry;
         mapping(address => uint256) userNonces;
         mapping(bytes4 => bool) quarantinedSelectors;
     }
@@ -331,12 +322,6 @@ contract AoxcCore is
         uint8 flags = $.modeFlags[account];
         if (enabled) $.modeFlags[account] = flags | MODE_FLAG_CRITICAL;
         else $.modeFlags[account] = flags & ~MODE_FLAG_CRITICAL;
-
-
-
-     
-    function setCriticalAddress(address account, bool enabled) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _getStore().criticalAddress[account] = enabled;
         emit CriticalAddressUpdated(account, enabled);
     }
 
@@ -348,11 +333,6 @@ contract AoxcCore is
         uint8 flags = $.modeFlags[_msgSender()];
         if (enabled) $.modeFlags[_msgSender()] = flags | MODE_FLAG_NEURAL_OPT_IN;
         else $.modeFlags[_msgSender()] = flags & ~MODE_FLAG_NEURAL_OPT_IN;
-
-
-
-    function setNeuralProtectMode(bool enabled) external {
-        _getStore().neuralProtectOptIn[_msgSender()] = enabled;
         emit NeuralProtectionModeUpdated(_msgSender(), enabled);
     }
 
@@ -363,25 +343,10 @@ contract AoxcCore is
     function prepareNeuralTransfer(address to, uint256 amount, NeuralPacket calldata packet) external {
         CoreStorage storage $ = _getStore();
         if (!_isNeuralProtected($, _msgSender())) {
-
-
-        if (!(($.criticalAddress[_msgSender()]) || $.neuralProtectOptIn[_msgSender()])) {
- develop
             revert AoxcErrors.Aoxc_Neural_ModeDisabled(_msgSender());
         }
         if (packet.origin != _msgSender() || packet.target != to || packet.value != amount) {
             revert AoxcErrors.Aoxc_Neural_InvalidPacketBinding();
-
- codex/hello
-
-
-    function prepareNeuralTransfer(address to, uint256 amount, NeuralPacket calldata packet) external {
-        CoreStorage storage $ = _getStore();
-        if (!(($.criticalAddress[_msgSender()]) || $.neuralProtectOptIn[_msgSender()])) {
-            revert AoxcErrors.Aoxc_CustomRevert("CORE: NEURAL_MODE_DISABLED");
-        }
-        if (packet.origin != _msgSender() || packet.target != to || packet.value != amount) {
-            revert AoxcErrors.Aoxc_CustomRevert("CORE: INVALID_PACKET_BINDING");
         }
         if (!IAoxcSentinel($.sentinelAi).validateNeuralPacket(packet)) {
             revert AoxcErrors.Aoxc_Neural_SecurityVeto(_msgSender(), packet.riskScore);
@@ -464,8 +429,6 @@ contract AoxcCore is
                 $.dailySpent[from] += amount;
 
                 if (_isNeuralProtected($, from)) {
-
-                if ($.criticalAddress[from] || $.neuralProtectOptIn[from]) {
                     uint256 nonce = $.transferPermitNonce[from];
                     bytes32 permitId = keccak256(abi.encode(from, to, amount, nonce));
                     if (!$.transferPermits[permitId]) {
@@ -480,11 +443,6 @@ contract AoxcCore is
                     }
                     delete $.transferPermits[permitId];
                     delete $.transferPermitExpiry[permitId];
-                    $.transferPermitNonce[from] = nonce + 1;
-                }
-
-                    if (!$.transferPermits[permitId]) revert AoxcErrors.Aoxc_CustomRevert("CORE: MISSING_NEURAL_PERMIT");
-                    delete $.transferPermits[permitId];
                     $.transferPermitNonce[from] = nonce + 1;
                 }
 
