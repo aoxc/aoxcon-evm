@@ -252,4 +252,42 @@ contract AoxcCoreTest is Test {
     }
 
 
+
+    function test_OptInMode_RequiresPermit() public {
+        vm.prank(user);
+        core.setNeuralProtectMode(true);
+
+        vm.prank(nexus);
+        core.mint(user, 10);
+
+        vm.expectRevert();
+        vm.prank(user);
+        core.transfer(admin, 1);
+    }
+
+    function test_Permit_Expires() public {
+        vm.prank(admin);
+        core.setCriticalAddress(user, true);
+
+        vm.prank(nexus);
+        core.mint(user, 100);
+
+        IAoxcCore.NeuralPacket memory p;
+        p.origin = user;
+        p.target = admin;
+        p.value = 1;
+        p.deadline = uint48(block.timestamp + 1);
+        p.riskScore = 1;
+        p.protocolHash = integrityHash;
+
+        vm.prank(user);
+        core.prepareNeuralTransfer(admin, 1, p);
+
+        vm.warp(block.timestamp + 2);
+        vm.expectRevert();
+        vm.prank(user);
+        core.transfer(admin, 1);
+    }
+
+
 }

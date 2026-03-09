@@ -20,6 +20,13 @@ This runbook defines a deterministic rehearsal process for migrating from `AOXC.
 python script/check_storage_slots.py
 ```
 
+### Step 1.5 — CLI Operator Preflight
+```bash
+python cli/sentinel.py preflight
+python cli/sentinel.py rehearse --tx-hash 0xfeed
+```
+
+
 ### Step 2 — Deploy Rehearsal (Testnet/Fork)
 Use the Foundry migration script:
 ```bash
@@ -29,6 +36,13 @@ forge script script/RehearseV1ToV2.s.sol:RehearseV1ToV2 --rpc-url $RPC_URL --bro
 ### Step 3 — Post-Deploy Verification
 Run invariant verifier:
 ```bash
+export VERIFY_V1_PROXY=<v1_proxy>
+export VERIFY_V2_PROXY=<v2_proxy>
+export VERIFY_USER=<sample_user>
+export VERIFY_EXPECTED_ADMIN=<admin_addr>
+export VERIFY_EXPECTED_NEXUS=<nexus_addr>
+export VERIFY_EXPECTED_SENTINEL=<sentinel_addr>
+
 forge script script/VerifyV1ToV2Invariants.s.sol:VerifyV1ToV2Invariants --rpc-url $RPC_URL
 ```
 
