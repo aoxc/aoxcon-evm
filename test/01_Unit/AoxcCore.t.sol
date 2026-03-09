@@ -50,6 +50,39 @@ contract AoxcCoreTest is Test {
         core.mint(user, 100);
     }
 
+
+    function test_Revert_InitializeV2_ZeroAdmin() public {
+        AoxcCore impl = new AoxcCore();
+        bytes memory initData = abi.encodeWithSelector(
+            AoxcCore.initializeV2.selector,
+            address(0),
+            nexus,
+            sentinel,
+            address(0),
+            address(0),
+            integrityHash
+        );
+
+        vm.expectRevert(AoxcErrors.Aoxc_InvalidAddress.selector);
+        new ERC1967Proxy(address(impl), initData);
+    }
+
+    function test_Revert_InitializeV2_ZeroIntegrityHash() public {
+        AoxcCore impl = new AoxcCore();
+        bytes memory initData = abi.encodeWithSelector(
+            AoxcCore.initializeV2.selector,
+            address(0),
+            nexus,
+            sentinel,
+            address(0),
+            admin,
+            bytes32(0)
+        );
+
+        vm.expectRevert(abi.encodeWithSelector(AoxcErrors.Aoxc_CustomRevert.selector, "CORE: ZERO_INTEGRITY_HASH"));
+        new ERC1967Proxy(address(impl), initData);
+    }
+
     /*//////////////////////////////////////////////////////////////
                             NEURAL GATING
     //////////////////////////////////////////////////////////////*/
