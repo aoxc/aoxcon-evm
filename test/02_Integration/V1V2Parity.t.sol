@@ -163,5 +163,4 @@ contract V1V2ParityTest is Test {
         vm.prank(nexus);
         v2.mint(recipient, 1);
     }
-
 }
