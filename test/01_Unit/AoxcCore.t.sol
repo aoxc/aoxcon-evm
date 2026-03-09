@@ -88,6 +88,7 @@ contract AoxcCoreTest is Test {
         sentinelMock = new MockSentinelLocal();
         sentinel = address(sentinelMock);
 
+
         AoxcCore impl = new AoxcCore();
         bytes memory initData = abi.encodeWithSelector(
             AoxcCore.initializeV2.selector,
@@ -106,6 +107,7 @@ contract AoxcCoreTest is Test {
     function test_Revert_InitializeV2_ZeroIntegrityHash() public {
         sentinelMock = new MockSentinelLocal();
         sentinel = address(sentinelMock);
+
 
         AoxcCore impl = new AoxcCore();
         bytes memory initData = abi.encodeWithSelector(
@@ -249,5 +251,6 @@ contract AoxcCoreTest is Test {
         vm.prank(user);
         core.transfer(admin, 1);
     }
+
 
 }

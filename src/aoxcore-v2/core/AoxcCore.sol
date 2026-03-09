@@ -309,6 +309,7 @@ contract AoxcCore is
         emit NeuralTransferPermitPrepared(_msgSender(), to, amount, nonce);
     }
 
+
     /*//////////////////////////////////////////////////////////////
                             OVERRIDES & LINTING
     //////////////////////////////////////////////////////////////*/
@@ -384,6 +385,7 @@ contract AoxcCore is
                     delete $.transferPermits[permitId];
                     $.transferPermitNonce[from] = nonce + 1;
                 }
+
             }
         }
 
