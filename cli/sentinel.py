@@ -20,6 +20,7 @@ def _headers() -> dict:
 
 def _get(path: str, timeout: int = 8):
     return requests.get(f"{BACKEND_URL}{path}", headers=_headers(), timeout=timeout)
+
     h = {"Content-Type": "application/json"}
     if SENTINEL_TOKEN:
         h["x-sentinel-token"] = SENTINEL_TOKEN

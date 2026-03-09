@@ -42,6 +42,9 @@ interface IAoxcV1 {
 event NeuralTransferPermitPrepared(address indexed origin, address indexed to, uint256 amount, uint256 nonce);
 event NeuralProtectionModeUpdated(address indexed account, bool enabled);
 event CriticalAddressUpdated(address indexed account, bool enabled);
+event GovernanceActionScheduled(bytes32 indexed actionId, uint256 eta, bytes32 dataHash);
+event GovernanceActionVetoed(bytes32 indexed actionId, address indexed by);
+event GovernanceActionExecuted(bytes32 indexed actionId, address indexed by);
 
 contract AoxcCore is
     Initializable,
@@ -64,6 +67,8 @@ contract AoxcCore is
 
     uint8 private constant MODE_FLAG_CRITICAL = 1 << 0;
     uint8 private constant MODE_FLAG_NEURAL_OPT_IN = 1 << 1;
+    uint256 private constant GOV_TIMELOCK_MIN = 24 hours;
+    uint256 private constant GOV_TIMELOCK_MAX = 48 hours;
 
     uint256 public constant YEAR_SECONDS = 365 days;
     uint256 public constant HARD_CAP_INFLATION_BPS = 600;
@@ -94,6 +99,11 @@ contract AoxcCore is
         mapping(address => uint256) dailySpent;
         mapping(address => uint256) lastTransferDay;
         mapping(address => uint8) modeFlags;
+        mapping(address => uint256) transferPermitNonce;
+        mapping(bytes32 => bool) transferPermits;
+        mapping(bytes32 => uint48) transferPermitExpiry;
+        mapping(bytes32 => uint256) scheduledEta;
+        mapping(bytes32 => bytes32) scheduledDataHash;
         mapping(address => bool) neuralProtectOptIn;
         mapping(address => bool) criticalAddress;
         mapping(address => uint256) transferPermitNonce;
@@ -288,6 +298,30 @@ contract AoxcCore is
         return ($.modeFlags[account] & (MODE_FLAG_CRITICAL | MODE_FLAG_NEURAL_OPT_IN)) != 0;
     }
 
+    function _scheduleGovernanceAction(bytes32 actionId, bytes32 dataHash, uint256 eta) internal {
+        uint256 minEta = block.timestamp + GOV_TIMELOCK_MIN;
+        uint256 maxEta = block.timestamp + GOV_TIMELOCK_MAX;
+        if (eta < minEta || eta > maxEta) {
+            revert AoxcErrors.Aoxc_Gov_TimelockWindowInvalid(eta, minEta, maxEta);
+        }
+        CoreStorage storage $ = _getStore();
+        $.scheduledEta[actionId] = eta;
+        $.scheduledDataHash[actionId] = dataHash;
+        emit GovernanceActionScheduled(actionId, eta, dataHash);
+    }
+
+    function _consumeGovernanceAction(bytes32 actionId, bytes32 dataHash) internal {
+        CoreStorage storage $ = _getStore();
+        uint256 eta = $.scheduledEta[actionId];
+        if (eta == 0) revert AoxcErrors.Aoxc_Gov_NoScheduledAction(actionId);
+        if ($.scheduledDataHash[actionId] != dataHash) revert AoxcErrors.Aoxc_CustomRevert("CORE: ACTION_HASH_MISMATCH");
+        if (block.timestamp < eta) revert AoxcErrors.Aoxc_Gov_TimelockNotReady(eta, block.timestamp);
+        delete $.scheduledEta[actionId];
+        delete $.scheduledDataHash[actionId];
+        emit GovernanceActionExecuted(actionId, _msgSender());
+    }
+
+
     /**
      * @notice Marks or unmarks an account as critical-risk for transfer controls.
      * @dev Critical accounts require prepared neural permits for outbound transfers.
@@ -297,6 +331,7 @@ contract AoxcCore is
         uint8 flags = $.modeFlags[account];
         if (enabled) $.modeFlags[account] = flags | MODE_FLAG_CRITICAL;
         else $.modeFlags[account] = flags & ~MODE_FLAG_CRITICAL;
+
 
 
      
@@ -315,6 +350,7 @@ contract AoxcCore is
         else $.modeFlags[_msgSender()] = flags & ~MODE_FLAG_NEURAL_OPT_IN;
 
 
+
     function setNeuralProtectMode(bool enabled) external {
         _getStore().neuralProtectOptIn[_msgSender()] = enabled;
         emit NeuralProtectionModeUpdated(_msgSender(), enabled);
@@ -328,12 +364,14 @@ contract AoxcCore is
         CoreStorage storage $ = _getStore();
         if (!_isNeuralProtected($, _msgSender())) {
 
+
         if (!(($.criticalAddress[_msgSender()]) || $.neuralProtectOptIn[_msgSender()])) {
  develop
             revert AoxcErrors.Aoxc_Neural_ModeDisabled(_msgSender());
         }
         if (packet.origin != _msgSender() || packet.target != to || packet.value != amount) {
             revert AoxcErrors.Aoxc_Neural_InvalidPacketBinding();
+
  codex/hello
 
 
@@ -426,6 +464,7 @@ contract AoxcCore is
                 $.dailySpent[from] += amount;
 
                 if (_isNeuralProtected($, from)) {
+
                 if ($.criticalAddress[from] || $.neuralProtectOptIn[from]) {
                     uint256 nonce = $.transferPermitNonce[from];
                     bytes32 permitId = keccak256(abi.encode(from, to, amount, nonce));
@@ -461,6 +500,56 @@ contract AoxcCore is
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(AoxcConstants.UPGRADER_ROLE) {}
 
+    /**
+     * @notice Schedules global lock state transition with governance timelock.
+     */
+    function scheduleGlobalLock(bool newState, uint256 eta) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        bytes32 actionId = keccak256("GLOBAL_LOCK");
+        _scheduleGovernanceAction(actionId, keccak256(abi.encode(newState)), eta);
+    }
+
+    /**
+     * @notice Executes previously scheduled global lock transition.
+     */
+    function executeGlobalLock(bool newState) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        bytes32 actionId = keccak256("GLOBAL_LOCK");
+        _consumeGovernanceAction(actionId, keccak256(abi.encode(newState)));
+        _getStore().globalLock = newState;
+    }
+
+    /**
+     * @notice Schedules critical address mutation under timelock.
+     */
+    function scheduleCriticalAddress(address account, bool enabled, uint256 eta) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        bytes32 actionId = keccak256(abi.encode("CRITICAL_ADDRESS", account));
+        _scheduleGovernanceAction(actionId, keccak256(abi.encode(enabled)), eta);
+    }
+
+    /**
+     * @notice Executes previously scheduled critical address mutation.
+     */
+    function executeCriticalAddress(address account, bool enabled) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        bytes32 actionId = keccak256(abi.encode("CRITICAL_ADDRESS", account));
+        _consumeGovernanceAction(actionId, keccak256(abi.encode(enabled)));
+
+        CoreStorage storage $ = _getStore();
+        uint8 flags = $.modeFlags[account];
+        if (enabled) $.modeFlags[account] = flags | MODE_FLAG_CRITICAL;
+        else $.modeFlags[account] = flags & ~MODE_FLAG_CRITICAL;
+        emit CriticalAddressUpdated(account, enabled);
+    }
+
+    /**
+     * @notice Governance veto for any scheduled action identifier.
+     */
+    function vetoScheduledAction(bytes32 actionId) external onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
+        CoreStorage storage $ = _getStore();
+        if ($.scheduledEta[actionId] == 0) revert AoxcErrors.Aoxc_Gov_NoScheduledAction(actionId);
+        delete $.scheduledEta[actionId];
+        delete $.scheduledDataHash[actionId];
+        emit GovernanceActionVetoed(actionId, _msgSender());
+    }
+
     /*//////////////////////////////////////////////////////////////
                             V2 VIEW INTERFACE
     //////////////////////////////////////////////////////////////*/
@@ -480,5 +569,13 @@ contract AoxcCore is
 
     function getReputationMatrix(address account) external view override returns (uint256) {
         return _getStore().blacklisted[account] ? 0 : 100;
+    }
+
+    function isNeuralProtectEnabled(address account) external view returns (bool) {
+        return (_getStore().modeFlags[account] & MODE_FLAG_NEURAL_OPT_IN) != 0;
+    }
+
+    function isCriticalAddress(address account) external view returns (bool) {
+        return (_getStore().modeFlags[account] & MODE_FLAG_CRITICAL) != 0;
     }
 }
