@@ -51,6 +51,29 @@ contract AoxcCoreTest is Test {
     }
 
 
+    function test_Mint_Revert_YearlyInflationLimit() public {
+        uint256 yearlyLimit = 6_000_000_000 * 1e18;
+        vm.startPrank(nexus);
+        core.mint(user, yearlyLimit);
+        vm.expectRevert();
+        core.mint(user, 1);
+        vm.stopPrank();
+    }
+
+    function test_Mint_ResetsAfterYearWindow() public {
+        uint256 yearlyLimit = 6_000_000_000 * 1e18;
+        vm.prank(nexus);
+        core.mint(user, yearlyLimit);
+
+        vm.warp(block.timestamp + 366 days);
+
+        vm.prank(nexus);
+        core.mint(user, 1);
+
+        assertEq(core.balanceOf(user), yearlyLimit + 1);
+    }
+
+
     function test_Revert_InitializeV2_ZeroAdmin() public {
         AoxcCore impl = new AoxcCore();
         bytes memory initData = abi.encodeWithSelector(

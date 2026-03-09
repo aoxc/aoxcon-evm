@@ -124,4 +124,24 @@ contract V1V2ParityTest is Test {
         vm.prank(user);
         v2.transfer(recipient, 1 ether);
     }
+
+
+    function test_Parity_YearlyMintLimit() public {
+        uint256 v1Limit = v1.yearlyMintLimit();
+        (uint256 v2Limit,,) = v2.getMintPolicy();
+
+        vm.prank(governor);
+        v1.mint(recipient, v1Limit);
+
+        vm.prank(nexus);
+        v2.mint(recipient, v2Limit);
+
+        vm.expectRevert();
+        vm.prank(governor);
+        v1.mint(recipient, 1);
+
+        vm.expectRevert();
+        vm.prank(nexus);
+        v2.mint(recipient, 1);
+    }
 }

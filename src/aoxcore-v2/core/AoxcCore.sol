@@ -61,6 +61,10 @@ contract AoxcCore is
 {
     using SafeERC20 for IERC20;
 
+    uint256 public constant YEAR_SECONDS = 365 days;
+    uint256 public constant HARD_CAP_INFLATION_BPS = 600;
+    uint256 public constant V1_PARITY_ANCHOR_SUPPLY = 100_000_000_000 * 1e18;
+
     /*//////////////////////////////////////////////////////////////
                 NAMESPACED STORAGE (ERC-7201 COMPLIANT)
     //////////////////////////////////////////////////////////////*/
@@ -72,6 +76,8 @@ contract AoxcCore is
         address nexusHub;
         uint256 lastPulse;
         uint256 anchorSupply;
+        uint256 yearlyMintLimit;
+        uint256 lastMintTimestamp;
         uint256 mintedThisYear;
         uint256 maxTransferAmount;
         uint256 dailyTransferLimit;
@@ -141,7 +147,9 @@ contract AoxcCore is
         $.lastPulse = block.timestamp;
         $.maxTransferAmount = 500_000_000 * 1e18;
         $.dailyTransferLimit = 1_000_000_000 * 1e18;
-        $.anchorSupply = 100_000_000 * 1e18;
+        $.anchorSupply = V1_PARITY_ANCHOR_SUPPLY;
+        $.yearlyMintLimit = ($.anchorSupply * HARD_CAP_INFLATION_BPS) / AoxcConstants.BPS_DENOMINATOR;
+        $.lastMintTimestamp = block.timestamp;
         $.aiFailSafeActive = true;
 
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
@@ -215,9 +223,20 @@ contract AoxcCore is
     function mint(address to, uint256 amount) external override onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
         CoreStorage storage $ = _getStore();
         if ($.blacklisted[to]) revert AoxcErrors.Aoxc_Blacklisted(to, $.blacklistReason[to]);
+
+        if (block.timestamp >= $.lastMintTimestamp + YEAR_SECONDS) {
+            uint256 periods = (block.timestamp - $.lastMintTimestamp) / YEAR_SECONDS;
+            $.lastMintTimestamp += periods * YEAR_SECONDS;
+            $.mintedThisYear = 0;
+        }
+
+        if ($.mintedThisYear + amount > $.yearlyMintLimit) revert AoxcErrors.Aoxc_InflationHardcapReached();
+        if (totalSupply() + amount > $.anchorSupply * 3) revert AoxcErrors.Aoxc_InflationHardcapReached();
+
+        $.mintedThisYear += amount;
         _mint(to, amount);
-        if (_getStore().v1TokenLegacy != address(0)) {
-            try IAoxcV1(_getStore().v1TokenLegacy).mint(to, amount) {} catch {}
+        if ($.v1TokenLegacy != address(0)) {
+            try IAoxcV1($.v1TokenLegacy).mint(to, amount) {} catch {}
         }
     }
 
@@ -248,6 +267,11 @@ contract AoxcCore is
 
     function isBlacklisted(address account) external view returns (bool) {
         return _getStore().blacklisted[account];
+    }
+
+    function getMintPolicy() external view returns (uint256 yearlyLimit, uint256 mintedInCurrentYear, uint256 windowStart) {
+        CoreStorage storage $ = _getStore();
+        return ($.yearlyMintLimit, $.mintedThisYear, $.lastMintTimestamp);
     }
 
     /*//////////////////////////////////////////////////////////////
