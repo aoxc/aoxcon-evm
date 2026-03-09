@@ -65,7 +65,8 @@ contract AoxcNexus is
     }
 
     // keccak256(abi.encode(uint256(keccak256("aoxc.storage.Nexus")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant NEXUS_STORAGE_SLOT = 0x56a64487b9f3630f9a2e6840a3597843644f7725845c2794c489b251a3d00800;
+    // IMPORTANT: Must be unique across all upgradeable modules (no slot reuse with Registry or others).
+    bytes32 private constant NEXUS_STORAGE_SLOT = 0xe2f5ef7afe575369205e9f9a7d3525dfc8ec3b20bff0cf63d443ba70064e1800;
 
     function _getStore() internal pure returns (NexusStorage storage $) {
         assembly { $.slot := NEXUS_STORAGE_SLOT }
