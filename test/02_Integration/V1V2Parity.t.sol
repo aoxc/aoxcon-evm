@@ -144,4 +144,23 @@ contract V1V2ParityTest is Test {
         vm.prank(nexus);
         v2.mint(recipient, 1);
     }
+
+
+
+    function test_Parity_YearlyWindowReset() public {
+        uint256 v1Limit = v1.yearlyMintLimit();
+        (uint256 v2Limit,,) = v2.getMintPolicy();
+
+        vm.prank(governor);
+        v1.mint(recipient, v1Limit);
+        vm.prank(nexus);
+        v2.mint(recipient, v2Limit);
+
+        vm.warp(block.timestamp + 366 days);
+
+        vm.prank(governor);
+        v1.mint(recipient, 1);
+        vm.prank(nexus);
+        v2.mint(recipient, 1);
+    }
 }
