@@ -12,8 +12,6 @@ pragma solidity 0.8.33;
 // --- Interfaces & Libraries ---
 import {IAoxcCore} from "aoxc-interfaces/IAoxcCore.sol";
 import {IAoxcSentinel} from "aoxc-interfaces/IAoxcSentinel.sol";
-import {IAoxcAutoRepair} from "aoxc-interfaces/IAoxcAutoRepair.sol";
-import {IAoxcStorage} from "aoxc-interfaces/IAoxcStorage.sol";
 import {AoxcConstants} from "aoxc-libraries/AoxcConstants.sol";
 import {AoxcErrors} from "aoxc-libraries/AoxcErrors.sol";
 import {AoxcEvents} from "aoxc-libraries/AoxcEvents.sol";
@@ -31,7 +29,6 @@ import {NoncesUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Nonce
 import {VotesUpgradeable} from "@openzeppelin/contracts-upgradeable/governance/utils/VotesUpgradeable.sol";
 import {ERC20VotesUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @dev External interface for legacy V1 token interoperability.
@@ -61,7 +58,12 @@ contract AoxcCore is
     ERC20VotesUpgradeable,     
     UUPSUpgradeable
 {
-    using SafeERC20 for IERC20;
+    uint256 public constant YEAR_SECONDS = 365 days;
+    uint256 public constant HARD_CAP_INFLATION_BPS = 600;
+    uint256 public constant V1_PARITY_ANCHOR_SUPPLY = 100_000_000_000 * 1e18;
+
+    uint8 private constant MODE_FLAG_CRITICAL = 1 << 0;
+    uint8 private constant MODE_FLAG_NEURAL_OPT_IN = 1 << 1;
 
     uint256 public constant YEAR_SECONDS = 365 days;
     uint256 public constant HARD_CAP_INFLATION_BPS = 600;
@@ -91,6 +93,7 @@ contract AoxcCore is
         mapping(address => bool) isExcludedFromLimits;
         mapping(address => uint256) dailySpent;
         mapping(address => uint256) lastTransferDay;
+        mapping(address => uint8) modeFlags;
         mapping(address => bool) neuralProtectOptIn;
         mapping(address => bool) criticalAddress;
         mapping(address => uint256) transferPermitNonce;
@@ -281,10 +284,20 @@ contract AoxcCore is
         return ($.yearlyMintLimit, $.mintedThisYear, $.lastMintTimestamp);
     }
 
+    function _isNeuralProtected(CoreStorage storage $, address account) internal view returns (bool) {
+        return ($.modeFlags[account] & (MODE_FLAG_CRITICAL | MODE_FLAG_NEURAL_OPT_IN)) != 0;
+    }
+
     /**
      * @notice Marks or unmarks an account as critical-risk for transfer controls.
      * @dev Critical accounts require prepared neural permits for outbound transfers.
      */
+    function setCriticalAddress(address account, bool enabled) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        CoreStorage storage $ = _getStore();
+        uint8 flags = $.modeFlags[account];
+        if (enabled) $.modeFlags[account] = flags | MODE_FLAG_CRITICAL;
+        else $.modeFlags[account] = flags & ~MODE_FLAG_CRITICAL;
+
      
     function setCriticalAddress(address account, bool enabled) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _getStore().criticalAddress[account] = enabled;
@@ -294,6 +307,12 @@ contract AoxcCore is
     /**
      * @notice Enables or disables optional neural protection mode for caller transfers.
      */
+    function setNeuralProtectMode(bool enabled) external {
+        CoreStorage storage $ = _getStore();
+        uint8 flags = $.modeFlags[_msgSender()];
+        if (enabled) $.modeFlags[_msgSender()] = flags | MODE_FLAG_NEURAL_OPT_IN;
+        else $.modeFlags[_msgSender()] = flags & ~MODE_FLAG_NEURAL_OPT_IN;
+
 
     function setNeuralProtectMode(bool enabled) external {
         _getStore().neuralProtectOptIn[_msgSender()] = enabled;
@@ -306,11 +325,15 @@ contract AoxcCore is
      */
     function prepareNeuralTransfer(address to, uint256 amount, NeuralPacket calldata packet) external {
         CoreStorage storage $ = _getStore();
+        if (!_isNeuralProtected($, _msgSender())) {
         if (!(($.criticalAddress[_msgSender()]) || $.neuralProtectOptIn[_msgSender()])) {
+ develop
             revert AoxcErrors.Aoxc_Neural_ModeDisabled(_msgSender());
         }
         if (packet.origin != _msgSender() || packet.target != to || packet.value != amount) {
             revert AoxcErrors.Aoxc_Neural_InvalidPacketBinding();
+ codex/hello
+
 
     function prepareNeuralTransfer(address to, uint256 amount, NeuralPacket calldata packet) external {
         CoreStorage storage $ = _getStore();
@@ -400,6 +423,7 @@ contract AoxcCore is
                 if (amount > remaining) revert AoxcErrors.Aoxc_ExceedsDailyLimit(amount, remaining);
                 $.dailySpent[from] += amount;
 
+                if (_isNeuralProtected($, from)) {
                 if ($.criticalAddress[from] || $.neuralProtectOptIn[from]) {
                     uint256 nonce = $.transferPermitNonce[from];
                     bytes32 permitId = keccak256(abi.encode(from, to, amount, nonce));
@@ -417,6 +441,7 @@ contract AoxcCore is
                     delete $.transferPermitExpiry[permitId];
                     $.transferPermitNonce[from] = nonce + 1;
                 }
+
                     if (!$.transferPermits[permitId]) revert AoxcErrors.Aoxc_CustomRevert("CORE: MISSING_NEURAL_PERMIT");
                     delete $.transferPermits[permitId];
                     $.transferPermitNonce[from] = nonce + 1;
