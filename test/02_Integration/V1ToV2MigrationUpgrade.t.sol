@@ -33,6 +33,11 @@ contract V1ToV2MigrationUpgradeTest is Test {
     function test_MigrateInPlace_PreservesSupplyBalancesAndGovernanceParity() public {
         uint256 preSupply = v1.totalSupply();
         uint256 preUserBalance = v1.balanceOf(user);
+        uint256 preYearlyMintLimit = v1.yearlyMintLimit();
+        uint256 preMintedThisYear = v1.mintedThisYear();
+        uint256 preLastMintTimestamp = v1.lastMintTimestamp();
+        uint256 preMaxTransferAmount = v1.maxTransferAmount();
+        uint256 preDailyTransferLimit = v1.dailyTransferLimit();
 
         AoxcCore v2Impl = new AoxcCore();
 
@@ -55,13 +60,62 @@ contract V1ToV2MigrationUpgradeTest is Test {
         assertEq(v2.totalSupply(), preSupply, "supply changed during migration");
         assertEq(v2.balanceOf(user), preUserBalance, "user balance changed during migration");
 
-        (uint256 yearlyLimit,,) = v2.getMintPolicy();
-        assertEq(yearlyLimit, (preSupply * 600) / AoxcConstants.BPS_DENOMINATOR, "yearly mint limit mismatch");
+        (uint256 yearlyLimit, uint256 mintedThisYear, uint256 lastMintWindowStart) = v2.getMintPolicy();
+        assertEq(yearlyLimit, preYearlyMintLimit, "yearly mint limit changed during migration");
+        assertEq(mintedThisYear, preMintedThisYear, "mintedThisYear changed during migration");
+        assertEq(lastMintWindowStart, preLastMintTimestamp, "lastMintTimestamp changed during migration");
+
+        assertEq(v2.maxTransferAmount(), preMaxTransferAmount, "maxTransferAmount changed during migration");
+        assertEq(v2.dailyTransferLimit(), preDailyTransferLimit, "dailyTransferLimit changed during migration");
 
         assertTrue(v2.hasRole(0x00, governor), "missing default admin");
         assertTrue(v2.hasRole(AoxcConstants.GOVERNANCE_ROLE, nexus), "missing governance role");
         assertTrue(v2.hasRole(AoxcConstants.SENTINEL_ROLE, sentinel), "missing sentinel role");
         assertTrue(v2.hasRole(AoxcConstants.UPGRADER_ROLE, governor), "missing upgrader role");
+    }
+
+
+    function test_MigrateInPlace_PreservesExistingBlacklistAndCanClearInV2() public {
+        address recipient = makeAddr("recipient_blacklist_case");
+
+        vm.prank(governor);
+        v1.addToBlacklist(user, "PRE_MIGRATION_RESTRICTION");
+
+        vm.expectRevert();
+        vm.prank(user);
+        v1.transfer(recipient, 1 ether);
+
+        AoxcCore v2Impl = new AoxcCore();
+
+        vm.prank(governor);
+        v1.upgradeToAndCall(
+            address(v2Impl),
+            abi.encodeWithSelector(
+                AoxcCore.migrateFromV1.selector,
+                address(v1),
+                nexus,
+                sentinel,
+                address(0),
+                governor,
+                integrityHash
+            )
+        );
+
+        AoxcCore v2 = AoxcCore(address(v1));
+
+        assertTrue(v2.isBlacklisted(user), "blacklist flag not preserved across migration");
+
+        vm.expectRevert();
+        vm.prank(user);
+        v2.transfer(recipient, 1 ether);
+
+        vm.prank(sentinel);
+        v2.setRestrictionStatus(user, false, "CLEARED_AFTER_MIGRATION");
+
+        assertFalse(v2.isBlacklisted(user), "blacklist clear failed in v2");
+
+        vm.prank(user);
+        v2.transfer(recipient, 1 ether);
     }
 
     function test_MigrateInPlace_TransferVelocityAndBlacklistStillEnforced() public {
