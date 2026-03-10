@@ -20,7 +20,6 @@ import {AoxcEvents} from "aoxc-libraries/AoxcEvents.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {ERC20BurnableUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import {ERC20PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PausableUpgradeable.sol";
@@ -28,7 +27,6 @@ import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/
 import {NoncesUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/NoncesUpgradeable.sol";
 import {VotesUpgradeable} from "@openzeppelin/contracts-upgradeable/governance/utils/VotesUpgradeable.sol";
 import {ERC20VotesUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
-import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 /**
  * @dev External interface for legacy V1 token interoperability.
@@ -48,22 +46,31 @@ event GovernanceActionExecuted(bytes32 indexed actionId, address indexed by);
 
 contract AoxcCore is
     Initializable,
-    ContextUpgradeable,
-    IAoxcCore,
-    AccessControlUpgradeable,
-    ReentrancyGuardUpgradeable,
     ERC20Upgradeable,
     ERC20BurnableUpgradeable,
     ERC20PausableUpgradeable,
-    NoncesUpgradeable,         
-    ERC20PermitUpgradeable,    
-    VotesUpgradeable,          
-    ERC20VotesUpgradeable,     
+    IAoxcCore,
+    AccessControlUpgradeable,
+    ERC20PermitUpgradeable,
+    ERC20VotesUpgradeable,
     UUPSUpgradeable
 {
     uint256 public constant YEAR_SECONDS = 365 days;
     uint256 public constant HARD_CAP_INFLATION_BPS = 600;
     uint256 public constant V1_PARITY_ANCHOR_SUPPLY = 100_000_000_000 * 1e18;
+
+    // --------- V1 storage layout (must remain in this exact order) ---------
+    uint256 public yearlyMintLimit;
+    uint256 public lastMintTimestamp;
+    uint256 public mintedThisYear;
+    uint256 public maxTransferAmount;
+    uint256 public dailyTransferLimit;
+
+    mapping(address => bool) private _blacklisted;
+    mapping(address => string) public blacklistReason;
+    mapping(address => bool) public isExcludedFromLimits;
+    mapping(address => uint256) public dailySpent;
+    mapping(address => uint256) public lastTransferDay;
 
     uint8 private constant MODE_FLAG_CRITICAL = 1 << 0;
     uint8 private constant MODE_FLAG_NEURAL_OPT_IN = 1 << 1;
@@ -144,7 +151,6 @@ contract AoxcCore is
 
         __ERC20_init("AoxcCore", "AOXC");
         __ERC20Permit_init("AoxcCore");
-        __ReentrancyGuard_init();
         __ERC20Votes_init();
         __AccessControl_init();
         __ERC20Pausable_init();
@@ -156,11 +162,11 @@ contract AoxcCore is
         $.repairEngine = repair;
         $.protocolHash = integrityHash;
         $.lastPulse = block.timestamp;
-        $.maxTransferAmount = 500_000_000 * 1e18;
-        $.dailyTransferLimit = 1_000_000_000 * 1e18;
+        maxTransferAmount = 500_000_000 * 1e18;
+        dailyTransferLimit = 1_000_000_000 * 1e18;
         $.anchorSupply = V1_PARITY_ANCHOR_SUPPLY;
-        $.yearlyMintLimit = ($.anchorSupply * HARD_CAP_INFLATION_BPS) / AoxcConstants.BPS_DENOMINATOR;
-        $.lastMintTimestamp = block.timestamp;
+        yearlyMintLimit = ($.anchorSupply * HARD_CAP_INFLATION_BPS) / AoxcConstants.BPS_DENOMINATOR;
+        lastMintTimestamp = block.timestamp;
         $.aiFailSafeActive = true;
 
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
@@ -169,9 +175,9 @@ contract AoxcCore is
         _grantRole(AoxcConstants.SENTINEL_ROLE, sentinel);
         _grantRole(AoxcConstants.REPAIR_ROLE, repair);
 
-        $.isExcludedFromLimits[admin] = true;
-        $.isExcludedFromLimits[nexus] = true;
-        $.isExcludedFromLimits[address(this)] = true;
+        isExcludedFromLimits[admin] = true;
+        isExcludedFromLimits[nexus] = true;
+        isExcludedFromLimits[address(this)] = true;
     }
 
     /**
@@ -200,12 +206,15 @@ contract AoxcCore is
         $.repairEngine = repair;
         $.protocolHash = integrityHash;
         $.lastPulse = block.timestamp;
-        $.maxTransferAmount = 500_000_000 * 1e18;
-        $.dailyTransferLimit = 1_000_000_000 * 1e18;
+        if (maxTransferAmount == 0) maxTransferAmount = 500_000_000 * 1e18;
+        if (dailyTransferLimit == 0) dailyTransferLimit = 1_000_000_000 * 1e18;
         $.anchorSupply = totalSupply();
-        $.yearlyMintLimit = ($.anchorSupply * HARD_CAP_INFLATION_BPS) / AoxcConstants.BPS_DENOMINATOR;
-        $.lastMintTimestamp = block.timestamp;
-        $.mintedThisYear = 0;
+        if (yearlyMintLimit == 0) {
+            yearlyMintLimit = ($.anchorSupply * HARD_CAP_INFLATION_BPS) / AoxcConstants.BPS_DENOMINATOR;
+        }
+        if (lastMintTimestamp == 0) {
+            lastMintTimestamp = block.timestamp;
+        }
         $.aiFailSafeActive = true;
 
         _grantRole(AoxcConstants.GOVERNANCE_ROLE, nexus);
@@ -213,9 +222,9 @@ contract AoxcCore is
         _grantRole(AoxcConstants.SENTINEL_ROLE, sentinel);
         if (repair != address(0)) _grantRole(AoxcConstants.REPAIR_ROLE, repair);
 
-        $.isExcludedFromLimits[nexus] = true;
-        $.isExcludedFromLimits[upgrader] = true;
-        $.isExcludedFromLimits[address(this)] = true;
+        isExcludedFromLimits[nexus] = true;
+        isExcludedFromLimits[upgrader] = true;
+        isExcludedFromLimits[address(this)] = true;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -265,32 +274,36 @@ contract AoxcCore is
         bool status,
         string calldata reason
     ) external override onlyRole(AoxcConstants.SENTINEL_ROLE) {
+        _blacklisted[account] = status;
+        blacklistReason[account] = reason;
+
         CoreStorage storage $ = _getStore();
-        $.blacklisted[account] = status;
-        $.blacklistReason[account] = reason;
-        
-        if ($.v1TokenLegacy != address(0)) {
-            try IAoxcV1($.v1TokenLegacy).addToBlacklist(account, reason) {} catch {}
+        if ($.v1TokenLegacy != address(0) && $.v1TokenLegacy != address(this)) {
+            if (status) {
+                try IAoxcV1($.v1TokenLegacy).addToBlacklist(account, reason) {} catch {}
+            } else {
+                try IAoxcV1($.v1TokenLegacy).removeFromBlacklist(account) {} catch {}
+            }
         }
         emit AoxcEvents.BlacklistUpdated(account, status, reason);
     }
 
     function mint(address to, uint256 amount) external override onlyRole(AoxcConstants.GOVERNANCE_ROLE) {
-        CoreStorage storage $ = _getStore();
-        if ($.blacklisted[to]) revert AoxcErrors.Aoxc_Blacklisted(to, $.blacklistReason[to]);
+        if (_blacklisted[to]) revert AoxcErrors.Aoxc_Blacklisted(to, blacklistReason[to]);
 
-        if (block.timestamp >= $.lastMintTimestamp + YEAR_SECONDS) {
-            uint256 periods = (block.timestamp - $.lastMintTimestamp) / YEAR_SECONDS;
-            $.lastMintTimestamp += periods * YEAR_SECONDS;
-            $.mintedThisYear = 0;
+        if (block.timestamp >= lastMintTimestamp + YEAR_SECONDS) {
+            uint256 periods = (block.timestamp - lastMintTimestamp) / YEAR_SECONDS;
+            lastMintTimestamp += periods * YEAR_SECONDS;
+            mintedThisYear = 0;
         }
 
-        if ($.mintedThisYear + amount > $.yearlyMintLimit) revert AoxcErrors.Aoxc_InflationHardcapReached();
-        if (totalSupply() + amount > $.anchorSupply * 3) revert AoxcErrors.Aoxc_InflationHardcapReached();
+        if (mintedThisYear + amount > yearlyMintLimit) revert AoxcErrors.Aoxc_InflationHardcapReached();
+        if (totalSupply() + amount > _getStore().anchorSupply * 3) revert AoxcErrors.Aoxc_InflationHardcapReached();
 
-        $.mintedThisYear += amount;
+        mintedThisYear += amount;
         _mint(to, amount);
-        if ($.v1TokenLegacy != address(0)) {
+        CoreStorage storage $ = _getStore();
+        if ($.v1TokenLegacy != address(0) && $.v1TokenLegacy != address(this)) {
             try IAoxcV1($.v1TokenLegacy).mint(to, amount) {} catch {}
         }
     }
@@ -304,16 +317,15 @@ contract AoxcCore is
      * @notice V1 compatibility: admin-managed transfer velocity limits.
      */
     function setTransferVelocity(uint256 maxTx, uint256 dailyLimit) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        CoreStorage storage $ = _getStore();
-        $.maxTransferAmount = maxTx;
-        $.dailyTransferLimit = dailyLimit;
+        maxTransferAmount = maxTx;
+        dailyTransferLimit = dailyLimit;
     }
 
     /**
      * @notice V1 compatibility: admin exclusion from velocity controls.
      */
     function setExclusionFromLimits(address account, bool status) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _getStore().isExcludedFromLimits[account] = status;
+        isExcludedFromLimits[account] = status;
     }
 
     function pause() external onlyRole(AoxcConstants.SENTINEL_ROLE) { _pause(); }
@@ -321,12 +333,11 @@ contract AoxcCore is
     function unpause() external onlyRole(AoxcConstants.SENTINEL_ROLE) { _unpause(); }
 
     function isBlacklisted(address account) external view returns (bool) {
-        return _getStore().blacklisted[account];
+        return _blacklisted[account];
     }
 
     function getMintPolicy() external view returns (uint256 yearlyLimit, uint256 mintedInCurrentYear, uint256 windowStart) {
-        CoreStorage storage $ = _getStore();
-        return ($.yearlyMintLimit, $.mintedThisYear, $.lastMintTimestamp);
+        return (yearlyMintLimit, mintedThisYear, lastMintTimestamp);
     }
 
     function _isNeuralProtected(CoreStorage storage $, address account) internal view returns (bool) {
@@ -460,17 +471,17 @@ contract AoxcCore is
         }
         
         if (from != address(0)) {
-            if ($.blacklisted[from]) revert AoxcErrors.Aoxc_Blacklisted(from, $.blacklistReason[from]);
-            if (to != address(0) && !$.isExcludedFromLimits[from]) {
-                if (amount > $.maxTransferAmount) revert AoxcErrors.Aoxc_ExceedsMaxTransfer(amount, $.maxTransferAmount);
+            if (_blacklisted[from]) revert AoxcErrors.Aoxc_Blacklisted(from, blacklistReason[from]);
+            if (to != address(0) && !isExcludedFromLimits[from]) {
+                if (amount > maxTransferAmount) revert AoxcErrors.Aoxc_ExceedsMaxTransfer(amount, maxTransferAmount);
                 uint256 day = block.timestamp / 1 days;
-                if ($.lastTransferDay[from] != day) {
-                    $.dailySpent[from] = 0;
-                    $.lastTransferDay[from] = day;
+                if (lastTransferDay[from] != day) {
+                    dailySpent[from] = 0;
+                    lastTransferDay[from] = day;
                 }
-                uint256 remaining = $.dailyTransferLimit - $.dailySpent[from];
+                uint256 remaining = dailyTransferLimit - dailySpent[from];
                 if (amount > remaining) revert AoxcErrors.Aoxc_ExceedsDailyLimit(amount, remaining);
-                $.dailySpent[from] += amount;
+                dailySpent[from] += amount;
 
                 if (_isNeuralProtected($, from)) {
                     uint256 nonce = $.transferPermitNonce[from];
@@ -493,8 +504,8 @@ contract AoxcCore is
             }
         }
 
-        if (to != address(0) && $.blacklisted[to]) {
-            revert AoxcErrors.Aoxc_Blacklisted(to, $.blacklistReason[to]);
+        if (to != address(0) && _blacklisted[to]) {
+            revert AoxcErrors.Aoxc_Blacklisted(to, blacklistReason[to]);
         }
 
         super._update(from, to, amount);
@@ -562,7 +573,7 @@ contract AoxcCore is
     }
 
     function isRestricted(address account) external view override returns (bool) {
-        return _getStore().blacklisted[account];
+        return _blacklisted[account];
     }
 
     function isCoreLocked() external view override returns (bool) {
@@ -570,7 +581,7 @@ contract AoxcCore is
     }
 
     function getReputationMatrix(address account) external view override returns (uint256) {
-        return _getStore().blacklisted[account] ? 0 : 100;
+        return _blacklisted[account] ? 0 : 100;
     }
 
     function isNeuralProtectEnabled(address account) external view returns (bool) {

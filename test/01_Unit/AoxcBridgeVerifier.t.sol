@@ -68,6 +68,36 @@ contract AoxcBridgeVerifierTest is Test {
         verifier.verifyAndConsume(packet);
     }
 
+
+    function test_VerifyAndConsume_RevertWhenEmptyPayloadHash() public {
+        AoxcBridgeVerifier.UnifiedNeuralPacket memory packet = _buildPacket(0, signerPk, 777, 0);
+        packet.payloadHash = bytes32(0);
+        packet.signature = _signPacket(packet, signerPk);
+
+        vm.expectRevert(abi.encodeWithSelector(AoxcErrors.Aoxc_CustomRevert.selector, "BRIDGE: EMPTY_PAYLOAD_HASH"));
+        verifier.verifyAndConsume(packet);
+    }
+
+    function test_VerifyAndConsume_RevertWhenBadSignatureLength() public {
+        AoxcBridgeVerifier.UnifiedNeuralPacket memory packet = _buildPacket(0, signerPk, 777, 0);
+        packet.signature = hex"1234";
+
+        vm.expectRevert(abi.encodeWithSelector(AoxcErrors.Aoxc_CustomRevert.selector, "BRIDGE: BAD_SIG_LENGTH"));
+        verifier.verifyAndConsume(packet);
+    }
+
+    function test_ComputePacketId_DiffersByCommandType() public {
+        AoxcBridgeVerifier.UnifiedNeuralPacket memory packetTransfer = _buildPacket(0, signerPk, 777, 0);
+        AoxcBridgeVerifier.UnifiedNeuralPacket memory packetBlacklist = _buildPacket(0, signerPk, 777, 0);
+        packetBlacklist.commandType = AoxcBridgeVerifier.CommandType.BLACKLIST;
+        packetBlacklist.signature = _signPacket(packetBlacklist, signerPk);
+
+        bytes32 transferId = verifier.computePacketId(packetTransfer);
+        bytes32 blacklistId = verifier.computePacketId(packetBlacklist);
+
+        assertTrue(transferId != blacklistId, "packet id must include command type");
+    }
+
     function test_GovernanceCanRotateSigner() public {
         uint256 newSignerPk = 0xC0DE;
         address newSigner = vm.addr(newSignerPk);
@@ -79,23 +109,11 @@ contract AoxcBridgeVerifierTest is Test {
         verifier.verifyAndConsume(packet);
     }
 
-    function _buildPacket(
-        uint256 nonce,
-        uint256 signingKey,
-        uint256 chainId,
-        uint48 deadlineOffset
-    ) internal view returns (AoxcBridgeVerifier.UnifiedNeuralPacket memory packet) {
-        packet.commandType = AoxcBridgeVerifier.CommandType.TRANSFER;
-        packet.origin = origin;
-        packet.target = target;
-        packet.value = 1 ether;
-        packet.nonce = nonce;
-        packet.deadline = uint48(block.timestamp + 30 minutes + deadlineOffset);
-        packet.reasonCode = 100;
-        packet.riskScore = 20;
-        packet.sourceChainId = chainId;
-        packet.payloadHash = keccak256("payload");
-
+    function _signPacket(AoxcBridgeVerifier.UnifiedNeuralPacket memory packet, uint256 signingKey)
+        internal
+        view
+        returns (bytes memory)
+    {
         bytes32 structHash = keccak256(
             abi.encode(
                 PACKET_TYPEHASH,
@@ -124,6 +142,26 @@ contract AoxcBridgeVerifierTest is Test {
 
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signingKey, digest);
-        packet.signature = abi.encodePacked(r, s, v);
+        return abi.encodePacked(r, s, v);
+    }
+
+    function _buildPacket(
+        uint256 nonce,
+        uint256 signingKey,
+        uint256 chainId,
+        uint48 deadlineOffset
+    ) internal view returns (AoxcBridgeVerifier.UnifiedNeuralPacket memory packet) {
+        packet.commandType = AoxcBridgeVerifier.CommandType.TRANSFER;
+        packet.origin = origin;
+        packet.target = target;
+        packet.value = 1 ether;
+        packet.nonce = nonce;
+        packet.deadline = uint48(block.timestamp + 30 minutes + deadlineOffset);
+        packet.reasonCode = 100;
+        packet.riskScore = 20;
+        packet.sourceChainId = chainId;
+        packet.payloadHash = keccak256("payload");
+
+        packet.signature = _signPacket(packet, signingKey);
     }
 }
