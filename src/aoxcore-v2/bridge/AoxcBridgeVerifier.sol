@@ -79,15 +79,8 @@ contract AoxcBridgeVerifier is Initializable, AccessControlUpgradeable, UUPSUpgr
         enabledCommands[uint8(CommandType.REPAIR)] = true;
     }
 
-    function verifyAndConsume(UnifiedNeuralPacket calldata packet) external returns (bytes32 packetId) {
-        if (paused) revert AoxcErrors.Aoxc_CustomRevert("BRIDGE: PAUSED");
-        if (!enabledCommands[uint8(packet.commandType)]) revert AoxcErrors.Aoxc_CustomRevert("BRIDGE: COMMAND_DISABLED");
-        if (!supportedSourceChains[packet.sourceChainId]) revert AoxcErrors.Aoxc_ChainNotSupported(packet.sourceChainId);
-        if (packet.origin == address(0) || packet.target == address(0)) revert AoxcErrors.Aoxc_InvalidAddress();
-        if (packet.deadline < block.timestamp) revert AoxcErrors.Aoxc_Neural_HandshakeExpired(packet.deadline, block.timestamp);
-        if (packet.nonce != nonces[packet.origin]) revert AoxcErrors.Aoxc_Neural_InvalidNonce(packet.nonce, nonces[packet.origin]);
-
-        bytes32 structHash = keccak256(
+    function computeStructHash(UnifiedNeuralPacket calldata packet) public pure returns (bytes32) {
+        return keccak256(
             abi.encode(
                 PACKET_TYPEHASH,
                 packet.commandType,
@@ -102,11 +95,29 @@ contract AoxcBridgeVerifier is Initializable, AccessControlUpgradeable, UUPSUpgr
                 packet.payloadHash
             )
         );
+    }
 
+    function computePacketId(UnifiedNeuralPacket calldata packet) public pure returns (bytes32) {
+        return keccak256(
+            abi.encode(packet.commandType, packet.origin, packet.target, packet.nonce, packet.payloadHash, packet.sourceChainId)
+        );
+    }
+
+    function verifyAndConsume(UnifiedNeuralPacket calldata packet) external returns (bytes32 packetId) {
+        if (paused) revert AoxcErrors.Aoxc_CustomRevert("BRIDGE: PAUSED");
+        if (!enabledCommands[uint8(packet.commandType)]) revert AoxcErrors.Aoxc_CustomRevert("BRIDGE: COMMAND_DISABLED");
+        if (!supportedSourceChains[packet.sourceChainId]) revert AoxcErrors.Aoxc_ChainNotSupported(packet.sourceChainId);
+        if (packet.origin == address(0) || packet.target == address(0)) revert AoxcErrors.Aoxc_InvalidAddress();
+        if (packet.deadline < block.timestamp) revert AoxcErrors.Aoxc_Neural_HandshakeExpired(packet.deadline, block.timestamp);
+        if (packet.nonce != nonces[packet.origin]) revert AoxcErrors.Aoxc_Neural_InvalidNonce(packet.nonce, nonces[packet.origin]);
+        if (packet.payloadHash == bytes32(0)) revert AoxcErrors.Aoxc_CustomRevert("BRIDGE: EMPTY_PAYLOAD_HASH");
+        if (packet.signature.length != 65) revert AoxcErrors.Aoxc_CustomRevert("BRIDGE: BAD_SIG_LENGTH");
+
+        bytes32 structHash = computeStructHash(packet);
         address recovered = _hashTypedDataV4(structHash).recover(packet.signature);
         if (recovered != bridgeSigner) revert AoxcErrors.Aoxc_Neural_IdentityForgery();
 
-        packetId = keccak256(abi.encode(packet.origin, packet.target, packet.nonce, packet.payloadHash, packet.sourceChainId));
+        packetId = computePacketId(packet);
         if (consumedPackets[packetId]) revert AoxcErrors.Aoxc_Neural_SignatureReused(packetId);
 
         consumedPackets[packetId] = true;

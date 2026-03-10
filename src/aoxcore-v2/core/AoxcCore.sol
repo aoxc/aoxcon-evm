@@ -283,6 +283,7 @@ contract AoxcCore is
                 try IAoxcV1($.v1TokenLegacy).addToBlacklist(account, reason) {} catch {}
             } else {
                 try IAoxcV1($.v1TokenLegacy).removeFromBlacklist(account) {} catch {}
+            }
             }        
 
         if ($.v1TokenLegacy != address(0)) {
