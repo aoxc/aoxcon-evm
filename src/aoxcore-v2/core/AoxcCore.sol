@@ -276,7 +276,10 @@ contract AoxcCore is
     ) external override onlyRole(AoxcConstants.SENTINEL_ROLE) {
         _blacklisted[account] = status;
         blacklistReason[account] = reason;
+
+        CoreStorage storage $ = _getStore();
         
+
         if ($.v1TokenLegacy != address(0)) {
             try IAoxcV1($.v1TokenLegacy).addToBlacklist(account, reason) {} catch {}
         }
