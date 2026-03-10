@@ -283,7 +283,10 @@ contract AoxcCore is
                 try IAoxcV1($.v1TokenLegacy).addToBlacklist(account, reason) {} catch {}
             } else {
                 try IAoxcV1($.v1TokenLegacy).removeFromBlacklist(account) {} catch {}
-            }
+            }        
+
+        if ($.v1TokenLegacy != address(0)) {
+            try IAoxcV1($.v1TokenLegacy).addToBlacklist(account, reason) {} catch {}
         }
         emit AoxcEvents.BlacklistUpdated(account, status, reason);
     }
@@ -304,6 +307,7 @@ contract AoxcCore is
         _mint(to, amount);
         CoreStorage storage $ = _getStore();
         if ($.v1TokenLegacy != address(0) && $.v1TokenLegacy != address(this)) {
+        if ($.v1TokenLegacy != address(0)) {
             try IAoxcV1($.v1TokenLegacy).mint(to, amount) {} catch {}
         }
     }
