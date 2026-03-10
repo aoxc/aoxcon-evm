@@ -113,6 +113,7 @@ Includes:
 - security hardening plans
 - engineering evolution roadmap
 - CI guardrails for storage-slot safety
+- XLayer + Sui legacy-honor execution plan
 
 ---
 
