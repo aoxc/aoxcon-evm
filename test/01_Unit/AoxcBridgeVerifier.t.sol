@@ -6,6 +6,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 
 import {AoxcBridgeVerifier} from "aoxc-v2/bridge/AoxcBridgeVerifier.sol";
 import {AoxcErrors} from "aoxc-libraries/AoxcErrors.sol";
+import {AoxcConstants} from "aoxc-libraries/AoxcConstants.sol";
 
 contract AoxcBridgeVerifierTest is Test {
     AoxcBridgeVerifier internal verifier;
@@ -37,6 +38,13 @@ contract AoxcBridgeVerifierTest is Test {
         vm.startPrank(admin);
         verifier.setSourceChainSupport(777, true);
         vm.stopPrank();
+    }
+
+
+    function test_Initialize_EnablesXLayerSuiAndCardanoByDefault() public view {
+        assertTrue(verifier.supportedSourceChains(AoxcConstants.CHAIN_ID_X_LAYER));
+        assertTrue(verifier.supportedSourceChains(AoxcConstants.CHAIN_ID_SUI));
+        assertTrue(verifier.supportedSourceChains(AoxcConstants.CHAIN_ID_CARDANO));
     }
 
     function test_VerifyAndConsume_Success() public {

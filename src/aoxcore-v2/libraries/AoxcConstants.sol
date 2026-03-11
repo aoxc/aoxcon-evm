@@ -86,6 +86,8 @@ library AoxcConstants {
     //////////////////////////////////////////////////////////////*/
     uint256 internal constant CHAIN_ID_X_LAYER = 196;
     uint256 internal constant CHAIN_ID_ETH_MAINNET = 1;
+    uint256 internal constant CHAIN_ID_SUI = 784;
+    uint256 internal constant CHAIN_ID_CARDANO = 1815;
     string internal constant DAO_NAME = "AoxcCore Sovereign Assembly";
     uint256 internal constant GENESIS_CELL_ID = 1;
     uint256 internal constant GOVERNANCE_QUORUM_BPS = 400;
