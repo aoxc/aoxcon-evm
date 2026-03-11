@@ -115,6 +115,7 @@ Includes:
 - CI guardrails for storage-slot safety
 - XLayer + Sui legacy-honor execution plan
 - AoxCore-XAS modest revolution plan
+- V1→V2 mainnet migration and audit readiness baseline
 
 ---
 
@@ -349,3 +350,14 @@ See the `LICENSE` file for details.
 <div align="center">
   <sub>© 2026 AOXCORE Protocol | Secure. Auditable. Upgrade-Safe.</sub>
 </div>
+---
+
+# Mainnet Migration Readiness (V1 → V2)
+
+For production upgrade discipline (storage continuity, governance safety, and audit evidence), follow:
+
+- `docs/V1_V2_MAINNET_AUDIT_READINESS.md`
+- `docs/MIGRATION_REHEARSAL_RUNBOOK.md`
+- `docs/V1_V2_PARITY_MATRIX.md`
+
+These documents define the minimum acceptance criteria before mainnet upgrade execution.
