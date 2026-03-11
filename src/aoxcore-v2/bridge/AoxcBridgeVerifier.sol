@@ -73,6 +73,8 @@ contract AoxcBridgeVerifier is Initializable, AccessControlUpgradeable, UUPSUpgr
         _grantRole(AoxcConstants.UPGRADER_ROLE, admin);
 
         supportedSourceChains[AoxcConstants.CHAIN_ID_X_LAYER] = true;
+        supportedSourceChains[AoxcConstants.CHAIN_ID_SUI] = true;
+        supportedSourceChains[AoxcConstants.CHAIN_ID_CARDANO] = true;
         enabledCommands[uint8(CommandType.TRANSFER)] = true;
         enabledCommands[uint8(CommandType.RISK_SCORE)] = true;
         enabledCommands[uint8(CommandType.BLACKLIST)] = true;
