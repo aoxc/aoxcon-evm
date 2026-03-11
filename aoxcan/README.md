@@ -4,6 +4,9 @@
 
 This directory serves as the **Neural Heart** of the AOXCAN ecosystem. It is here that we cultivate domain-specific intelligence designed to provide autonomous vetting and protocol integrity for the Sovereign Fleet. Our work is not about creating monolithic power, but about nurturing specialized, agile, and ethically grounded guardians.
 
+## ⚠️ Operational Risk & Scope
+This directory is a research and intelligence workspace. Artifacts under `aoxcan/` are not a substitute for protocol-level governance controls, formal verification, or independent smart-contract audits. Use outputs as advisory intelligence, not autonomous authority.
+
 ---
 
 ## 🎯 Specialized Intelligence: The "Neural Cell" Philosophy

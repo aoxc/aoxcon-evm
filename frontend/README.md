@@ -17,6 +17,11 @@
 
 The AOXCORE frontend is an operations-focused React application that exposes governance controls, migration telemetry, forensic ledger views, and AI-assisted sentinel insights in one unified control plane.
 
+## Risk Disclosure
+
+This frontend is in active evolution alongside protocol migration workstreams. Treat current builds as **release-candidate quality** unless explicitly tagged as production-ready by governance and security signoff.
+
+
 Primary goals:
 - Provide high-fidelity operational visibility over protocol state.
 - Enable deterministic intervention paths for privileged actors.
