@@ -6,6 +6,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import "aoxc-v2/core/AoxcCore.sol";
 import "aoxc-v2/libraries/AoxcConstants.sol";
 import "aoxc-v2/libraries/AoxcErrors.sol";
+import {MockLegacyV1Token} from "test/mocks/MockLegacyV1Token.sol";
 
 contract MockSentinelLocal {
     function validateNeuralPacket(IAoxcCore.NeuralPacket calldata) external pure returns (bool) {
@@ -291,3 +292,79 @@ contract AoxcCoreTest is Test {
     }
 
 }
+
+
+
+contract AoxcCoreLegacySyncTest is Test {
+    AoxcCore internal core;
+    MockSentinelLocal internal sentinelMock;
+    MockLegacyV1Token internal legacy;
+
+    address internal admin = makeAddr("admin_sync");
+    address internal nexus = makeAddr("nexus_sync");
+    address internal sentinel;
+    address internal user = makeAddr("user_sync");
+    bytes32 internal integrityHash = keccak256("AOXC_V2_SYNC_CASE");
+
+    function setUp() public {
+        sentinelMock = new MockSentinelLocal();
+        sentinel = address(sentinelMock);
+        legacy = new MockLegacyV1Token();
+
+        AoxcCore impl = new AoxcCore();
+        bytes memory initData = abi.encodeWithSelector(
+            AoxcCore.initializeV2.selector,
+            address(legacy),
+            nexus,
+            sentinel,
+            address(0),
+            admin,
+            integrityHash
+        );
+        core = AoxcCore(address(new ERC1967Proxy(address(impl), initData)));
+    }
+
+    function test_LegacySync_BlacklistAddAndRemove_CalledExactlyOnce() public {
+        vm.prank(sentinel);
+        core.setRestrictionStatus(user, true, "RISK");
+
+        assertEq(legacy.blacklistAddCalls(), 1, "addToBlacklist must be called once");
+        assertEq(legacy.blacklistRemoveCalls(), 0, "removeFromBlacklist must not be called");
+        assertTrue(legacy.blacklisted(user), "legacy blacklist state mismatch after add");
+
+        vm.prank(sentinel);
+        core.setRestrictionStatus(user, false, "CLEAR");
+
+        assertEq(legacy.blacklistAddCalls(), 1, "addToBlacklist must not be called again on clear");
+        assertEq(legacy.blacklistRemoveCalls(), 1, "removeFromBlacklist must be called once");
+        assertFalse(legacy.blacklisted(user), "legacy blacklist state mismatch after clear");
+    }
+
+    function test_LegacySync_Mint_ForwardedExactlyOnce() public {
+        vm.prank(nexus);
+        core.mint(user, 123);
+
+        assertEq(legacy.mintCalls(), 1, "legacy mint must be called once");
+        assertEq(legacy.mintedTo(user), 123, "legacy mint amount mismatch");
+    }
+
+    function test_LegacySync_DoesNotCallSelfLegacyAddress() public {
+        AoxcCore impl = new AoxcCore();
+        bytes memory initData = abi.encodeWithSelector(
+            AoxcCore.initializeV2.selector,
+            address(0),
+            nexus,
+            sentinel,
+            address(0),
+            admin,
+            integrityHash
+        );
+        AoxcCore isolated = AoxcCore(address(new ERC1967Proxy(address(impl), initData)));
+
+        vm.prank(nexus);
+        isolated.mint(user, 7);
+
+        assertEq(isolated.balanceOf(user), 7, "local mint failed without legacy token");
+    }
+}
+
