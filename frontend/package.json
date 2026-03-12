@@ -18,7 +18,6 @@
     "security-scan": "npm audit && npm run lint"
   },
   "dependencies": {
-    "@google/genai": "^1.43.0",
     "@google/generative-ai": "^0.24.1",
     "@tanstack/react-query": "^5.90.21",
     "buffer": "^6.0.3",

@@ -8,7 +8,10 @@ async function analyze(req, res) {
   try {
     const { prompt, context } = req.validated;
 
-    log.info({ event: 'sentinel.analysis', message: 'Analysis request accepted.' });
+    log.info({
+      event: 'sentinel.analysis',
+      message: 'Analysis request accepted.',
+    });
     const result = await analyzeWithGemini({ prompt, context });
 
     log.info({
@@ -16,7 +19,7 @@ async function analyze(req, res) {
       message: 'Analysis completed.',
       risk: result.risk,
       action: result.action,
-      provider: result.provider
+      provider: result.provider,
     });
 
     return res.status(200).json(result);
@@ -24,12 +27,12 @@ async function analyze(req, res) {
     log.error({
       event: 'service.error',
       message: 'Sentinel analysis failed.',
-      error: error.message
+      error: error.message,
     });
 
     return res.status(500).json({
       error: 'ANALYSIS_FAILED',
-      reason: 'Internal sentinel processing error.'
+      reason: 'Internal sentinel processing error.',
     });
   }
 }
