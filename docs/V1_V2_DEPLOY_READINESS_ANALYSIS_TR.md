@@ -195,3 +195,32 @@ The proper release sequence is:
 6. execute controlled rollout
 
 Until that chain is complete, production deployment should remain blocked.
+---
+
+## 9) 2026-03 Preflight Automation Update
+
+A new deterministic preflight utility has been added:
+
+- `script/preflight_production_readiness.py`
+
+This utility validates:
+
+1. V1/V2 critical file presence
+2. migration script presence
+3. Solidity static sanity
+4. storage slot uniqueness
+5. Foundry binary availability for `forge build`
+6. frontend registry risk (scoped-package policy blockers)
+7. ESLint flat-config presence for backend/frontend
+
+### Current automated preflight outcome
+
+- **Result:** `NO-GO`
+- **Reasons:**
+  - `forge` binary is missing in the current environment
+  - frontend dependency installation can be blocked by registry policy for scoped npm packages
+
+This means production deployment should remain blocked until:
+
+1. Foundry toolchain is provisioned and `forge build` is green.
+2. Frontend dependency resolution is guaranteed in CI and release environments.

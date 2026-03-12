@@ -9,14 +9,14 @@ const logger = createLogger({
     format.errors({ stack: true }),
     format.json()
   ),
-  transports: [new transports.Console()]
+  transports: [new transports.Console()],
 });
 
 function withRequestContext(requestId) {
   return {
     info: (payload) => logger.info({ requestId, ...payload }),
     warn: (payload) => logger.warn({ requestId, ...payload }),
-    error: (payload) => logger.error({ requestId, ...payload })
+    error: (payload) => logger.error({ requestId, ...payload }),
   };
 }
 

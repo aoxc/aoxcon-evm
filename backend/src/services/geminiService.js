@@ -1,29 +1,20 @@
 const { config } = require('../config');
 
-const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_ENDPOINT =
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 function heuristicAnalyze({ prompt, context }, provider = 'fallback-local') {
-  const lowered = `${prompt} ${context}`.toLowerCase();
-  const highRiskWords = ['delegatecall', 'drain', 'exploit', 'malicious', 'bypass', 'reentrancy'];
+  const lowered = `${prompt} ${context || ''}`.toLowerCase();
+  const highRiskWords = [
+    'delegatecall',
+    'drain',
+    'exploit',
+    'malicious',
+    'bypass',
+    'reentrancy',
+  ];
   const found = highRiskWords.filter((word) => lowered.includes(word));
   const risk = Math.min(100, 20 + found.length * 15);
-async function analyzeWithGemini({ prompt, context }) {
-  // Controlled fallback for development and environments without AI credentials.
-  if (!config.geminiApiKey) {
-    return {
-      risk: 35,
-      action: 'REVIEW',
-      reason: 'Gemini API key not configured; deterministic fallback analysis applied.',
-      provider: 'fallback-local'
-    };
-  }
-
-  // Placeholder integration boundary (can be replaced with @google/generative-ai call).
-  const lowered = `${prompt} ${context}`.toLowerCase();
-  const highRiskWords = ['delegatecall', 'drain', 'exploit', 'malicious'];
-  const found = highRiskWords.filter((w) => lowered.includes(w));
-
-  const risk = Math.min(100, 20 + found.length * 20);
 
   return {
     risk,
@@ -31,7 +22,7 @@ async function analyzeWithGemini({ prompt, context }) {
     reason: found.length
       ? `Potential threat markers detected: ${found.join(', ')}`
       : 'No critical threat markers detected in heuristic pass.',
-    provider
+    provider,
   };
 }
 
@@ -50,7 +41,7 @@ function parseGeminiText(payload) {
         risk: Math.max(0, Math.min(100, Math.round(parsed.risk))),
         action: parsed.action,
         reason: parsed.reason,
-        provider: 'gemini-1.5-flash'
+        provider: 'gemini-1.5-flash',
       };
     }
   } catch (_) {
@@ -61,7 +52,9 @@ function parseGeminiText(payload) {
 }
 
 async function analyzeWithGemini({ prompt, context }) {
-  if (!config.geminiApiKey) return heuristicAnalyze({ prompt, context });
+  if (!config.geminiApiKey) {
+    return heuristicAnalyze({ prompt, context });
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 4000);
@@ -70,32 +63,43 @@ async function analyzeWithGemini({ prompt, context }) {
     const requestPrompt = [
       'Analyze the operation and return STRICT JSON: {"risk":0-100,"action":"APPROVE|REVIEW|REJECT","reason":"..."}.',
       `prompt: ${prompt}`,
-      `context: ${context || ''}`
+      `context: ${context || ''}`,
     ].join('\n');
 
-    const response = await fetch(`${GEMINI_ENDPOINT}?key=${config.geminiApiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: requestPrompt }] }] }),
-      signal: controller.signal
-    });
+    const response = await fetch(
+      `${GEMINI_ENDPOINT}?key=${config.geminiApiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: requestPrompt }] }],
+        }),
+        signal: controller.signal,
+      }
+    );
 
-    if (!response.ok) return heuristicAnalyze({ prompt, context }, 'fallback-after-non-200');
+    if (!response.ok) {
+      return heuristicAnalyze({ prompt, context }, 'fallback-after-non-200');
+    }
 
     const payload = await response.json();
     const parsed = parseGeminiText(payload);
-    if (!parsed) return heuristicAnalyze({ prompt, context }, 'fallback-after-parse-failure');
+    if (!parsed) {
+      return heuristicAnalyze(
+        { prompt, context },
+        'fallback-after-parse-failure'
+      );
+    }
 
     return parsed;
   } catch (_) {
-    return heuristicAnalyze({ prompt, context }, 'fallback-after-network-error');
+    return heuristicAnalyze(
+      { prompt, context },
+      'fallback-after-network-error'
+    );
   } finally {
     clearTimeout(timeout);
   }
-}
-
-    provider: 'gemini-bridge-stub'
-  };
 }
 
 module.exports = { analyzeWithGemini };

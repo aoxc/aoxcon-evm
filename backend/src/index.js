@@ -25,7 +25,7 @@ app.use((req, res, next) => {
     event: 'api.request',
     message: 'Incoming request.',
     method: req.method,
-    path: req.originalUrl
+    path: req.originalUrl,
   });
 
   res.on('finish', () => {
@@ -35,7 +35,7 @@ app.use((req, res, next) => {
       method: req.method,
       path: req.originalUrl,
       statusCode: res.statusCode,
-      durationMs: Date.now() - start
+      durationMs: Date.now() - start,
     });
   });
 
@@ -50,7 +50,11 @@ app.use((req, res) => {
 
 app.use((err, req, res, _next) => {
   const log = withRequestContext(req.requestId || 'n/a');
-  log.error({ event: 'service.error', message: 'Unhandled error.', error: err.message });
+  log.error({
+    event: 'service.error',
+    message: 'Unhandled error.',
+    error: err.message,
+  });
   res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
 });
 
@@ -59,6 +63,6 @@ app.listen(config.port, () => {
     event: 'service.health',
     message: 'Sentinel backend started.',
     port: config.port,
-    env: config.env
+    env: config.env,
   });
 });
