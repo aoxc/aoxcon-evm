@@ -31,10 +31,17 @@ remappings = [
     "aoxc-v2/=src/aoxcore-v2/",
     "aoxc-v1/=src/aoxcore-v1/",
 
-    # Upgrade-focused aliases for library-like consumption
-    "upgrade-v1/=src/aoxcore-v1/",
-    "upgrade-v2/=src/aoxcore-v2/",
-    "upgrade-honor/=src/aoxcon/solidity/"
+    # AOXC Library aliases (module-first consumption)
+    "aoxc-lib/=src/aoxc-library/",
+    "aoxc-lib-core/=src/aoxc-library/core/",
+    "aoxc-lib-treasury/=src/aoxc-library/treasury/",
+    "aoxc-lib-ai/=src/aoxc-library/ai/",
+    "aoxc-lib-stake/=src/aoxc-library/stake/",
+    "aoxc-lib-bridge/=src/aoxc-library/bridge/",
+    "aoxc-lib-access/=src/aoxc-library/access/",
+    "aoxc-lib-gov/=src/aoxc-library/governance/",
+    "aoxc-lib-infra/=src/aoxc-library/infra/"
+
 ]
 
 # ==============================================================================
