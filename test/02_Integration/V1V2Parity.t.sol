@@ -2,12 +2,15 @@
 pragma solidity 0.8.33;
 
 import "forge-std/Test.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import "aoxc-v1/AOXC.sol";
 import "aoxc-v2/core/AoxcCore.sol";
 
 contract V1V2ParityTest is Test {
+    using SafeERC20 for IERC20;
     AOXC internal v1;
     AoxcCore internal v2;
 
@@ -52,11 +55,11 @@ contract V1V2ParityTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        v1.transfer(recipient, 1 ether);
+        IERC20(address(v1)).safeTransfer(recipient, 1 ether);
 
         vm.expectRevert();
         vm.prank(user);
-        v2.transfer(recipient, 1 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 1 ether);
     }
 
     function test_Parity_MaxTransferEnforcement() public {
@@ -68,11 +71,11 @@ contract V1V2ParityTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        v1.transfer(recipient, 101 ether);
+        IERC20(address(v1)).safeTransfer(recipient, 101 ether);
 
         vm.expectRevert();
         vm.prank(user);
-        v2.transfer(recipient, 101 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 101 ether);
     }
 
     function test_Parity_DailyLimitEnforcement() public {
@@ -83,18 +86,18 @@ contract V1V2ParityTest is Test {
         v2.setTransferVelocity(1000 ether, 200 ether);
 
         vm.prank(user);
-        v1.transfer(recipient, 150 ether);
+        IERC20(address(v1)).safeTransfer(recipient, 150 ether);
 
         vm.prank(user);
-        v2.transfer(recipient, 150 ether);
-
-        vm.expectRevert();
-        vm.prank(user);
-        v1.transfer(recipient, 60 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 150 ether);
 
         vm.expectRevert();
         vm.prank(user);
-        v2.transfer(recipient, 60 ether);
+        IERC20(address(v1)).safeTransfer(recipient, 60 ether);
+
+        vm.expectRevert();
+        vm.prank(user);
+        IERC20(address(v2)).safeTransfer(recipient, 60 ether);
     }
 
     function test_Parity_PauseSemantics() public {
@@ -106,11 +109,11 @@ contract V1V2ParityTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        v1.transfer(recipient, 1 ether);
+        IERC20(address(v1)).safeTransfer(recipient, 1 ether);
 
         vm.expectRevert();
         vm.prank(user);
-        v2.transfer(recipient, 1 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 1 ether);
 
         vm.prank(governor);
         v1.unpause();
@@ -119,10 +122,10 @@ contract V1V2ParityTest is Test {
         v2.unpause();
 
         vm.prank(user);
-        v1.transfer(recipient, 1 ether);
+        IERC20(address(v1)).safeTransfer(recipient, 1 ether);
 
         vm.prank(user);
-        v2.transfer(recipient, 1 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 1 ether);
     }
 
 

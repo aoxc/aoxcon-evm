@@ -117,6 +117,8 @@ contract AoxcRegistryTest is Test {
         
         // Mevcut hucreyi (Cell 1) dolduruyoruz
         for(uint256 i = 0; i < maxMembers; i++) {
+            // forge-lint: disable-next-line(unsafe-typecast)
+            // casting to uint160 is safe because loop index is tiny and deterministic in tests
             registry.onboardMember(address(uint160(i + 1000)));
         }
         

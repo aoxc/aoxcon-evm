@@ -111,6 +111,8 @@ contract AoxcCpex is IAoxcCpex, Initializable, AccessControlUpgradeable, Reentra
         if (main.isSovereignVaultSealed) revert AoxcErrors.Aoxc_GlobalLockActive();
         if (amount == 0) revert AoxcErrors.Aoxc_ZeroAmount();
         if (amount != packet.value) revert AoxcErrors.Aoxc_Neural_ValueMismatch(amount, packet.value);
+        if (amount > type(uint128).max) revert AoxcErrors.Aoxc_Module_Error(3, 413);
+        if (duration > type(uint64).max) revert AoxcErrors.Aoxc_Module_Error(3, 414);
 
         stake.totalValueLocked += amount;
         stake.accountPositions[msg.sender].push(

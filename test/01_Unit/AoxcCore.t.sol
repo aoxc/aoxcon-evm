@@ -3,6 +3,8 @@ pragma solidity 0.8.33;
 
 import "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "aoxc-v2/core/AoxcCore.sol";
 import "aoxc-v2/libraries/AoxcConstants.sol";
 import "aoxc-v2/libraries/AoxcErrors.sol";
@@ -15,6 +17,8 @@ contract MockSentinelLocal {
 }
 
 contract AoxcCoreTest is Test {
+    using SafeERC20 for IERC20;
+
     AoxcCore public core;
     
     address admin = makeAddr("admin");
@@ -156,7 +160,7 @@ contract AoxcCoreTest is Test {
         // Kara listedeki kullanıcı transfer yapamasın
         vm.expectRevert();
         vm.prank(user);
-        core.transfer(admin, 100);
+        IERC20(address(core)).safeTransfer(admin, 100);
     }
 
 
@@ -169,7 +173,7 @@ contract AoxcCoreTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        core.transfer(admin, 101);
+        IERC20(address(core)).safeTransfer(admin, 101);
     }
 
     function test_TransferVelocity_DailyLimit_Enforced() public {
@@ -180,11 +184,11 @@ contract AoxcCoreTest is Test {
         core.setTransferVelocity(1_000, 200);
 
         vm.prank(user);
-        core.transfer(admin, 150);
+        IERC20(address(core)).safeTransfer(admin, 150);
 
         vm.expectRevert();
         vm.prank(user);
-        core.transfer(admin, 60);
+        IERC20(address(core)).safeTransfer(admin, 60);
     }
 
     function test_Blacklisted_Recipient_CannotReceive() public {
@@ -196,7 +200,7 @@ contract AoxcCoreTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        core.transfer(admin, 10);
+        IERC20(address(core)).safeTransfer(admin, 10);
     }
 
     function test_Pause_Unpause_By_Sentinel() public {
@@ -208,13 +212,13 @@ contract AoxcCoreTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        core.transfer(admin, 1);
+        IERC20(address(core)).safeTransfer(admin, 1);
 
         vm.prank(sentinel);
         core.unpause();
 
         vm.prank(user);
-        core.transfer(admin, 1);
+        IERC20(address(core)).safeTransfer(admin, 1);
     }
 
 
@@ -228,7 +232,7 @@ contract AoxcCoreTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        core.transfer(admin, 1);
+        IERC20(address(core)).safeTransfer(admin, 1);
     }
 
     function test_CriticalAddress_WithPreparedPermit_AllowsTransfer() public {
@@ -250,7 +254,7 @@ contract AoxcCoreTest is Test {
         core.prepareNeuralTransfer(admin, 1, p);
 
         vm.prank(user);
-        core.transfer(admin, 1);
+        IERC20(address(core)).safeTransfer(admin, 1);
     }
 
 
@@ -264,7 +268,7 @@ contract AoxcCoreTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        core.transfer(admin, 1);
+        IERC20(address(core)).safeTransfer(admin, 1);
     }
 
     function test_Permit_Expires() public {
@@ -288,7 +292,7 @@ contract AoxcCoreTest is Test {
         vm.warp(block.timestamp + 2);
         vm.expectRevert();
         vm.prank(user);
-        core.transfer(admin, 1);
+        IERC20(address(core)).safeTransfer(admin, 1);
     }
 
 }
@@ -367,4 +371,3 @@ contract AoxcCoreLegacySyncTest is Test {
         assertEq(isolated.balanceOf(user), 7, "local mint failed without legacy token");
     }
 }
-

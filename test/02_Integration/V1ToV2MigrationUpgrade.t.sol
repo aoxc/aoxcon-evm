@@ -2,6 +2,8 @@
 pragma solidity 0.8.33;
 
 import "forge-std/Test.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import "aoxc-v1/AOXC.sol";
@@ -9,6 +11,7 @@ import "aoxc-v2/core/AoxcCore.sol";
 import "aoxc-v2/libraries/AoxcConstants.sol";
 
 contract V1ToV2MigrationUpgradeTest is Test {
+    using SafeERC20 for IERC20;
     AOXC internal v1;
 
     address internal governor = makeAddr("governor");
@@ -83,7 +86,7 @@ contract V1ToV2MigrationUpgradeTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        v1.transfer(recipient, 1 ether);
+        IERC20(address(v1)).safeTransfer(recipient, 1 ether);
 
         AoxcCore v2Impl = new AoxcCore();
 
@@ -107,7 +110,7 @@ contract V1ToV2MigrationUpgradeTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        v2.transfer(recipient, 1 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 1 ether);
 
         vm.prank(sentinel);
         v2.setRestrictionStatus(user, false, "CLEARED_AFTER_MIGRATION");
@@ -115,7 +118,7 @@ contract V1ToV2MigrationUpgradeTest is Test {
         assertFalse(v2.isBlacklisted(user), "blacklist clear failed in v2");
 
         vm.prank(user);
-        v2.transfer(recipient, 1 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 1 ether);
     }
 
     function test_MigrateInPlace_TransferVelocityAndBlacklistStillEnforced() public {
@@ -144,13 +147,13 @@ contract V1ToV2MigrationUpgradeTest is Test {
 
         vm.expectRevert();
         vm.prank(user);
-        v2.transfer(recipient, 1 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 1 ether);
 
         vm.prank(sentinel);
         v2.setRestrictionStatus(recipient, false, "CLEARED");
 
         vm.expectRevert();
         vm.prank(user);
-        v2.transfer(recipient, 60 ether);
+        IERC20(address(v2)).safeTransfer(recipient, 60 ether);
     }
 }

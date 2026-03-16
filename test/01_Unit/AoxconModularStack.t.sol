@@ -2,6 +2,8 @@
 pragma solidity 0.8.33;
 
 import "forge-std/Test.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {AoxconHonor} from "../../src/aoxcon/solidity/AoxconHonor.sol";
 import {AoxconXasToken} from "../../src/aoxcon/solidity/AoxconXasToken.sol";
 import {AoxconBridge} from "../../src/aoxcon/solidity/AoxconBridge.sol";
@@ -14,6 +16,7 @@ contract MockVerifier {
 }
 
 contract AoxconModularStackTest is Test {
+    using SafeERC20 for IERC20;
     address admin = makeAddr("admin");
     uint256 signerPk = 0xA11CE;
     address signer;
@@ -52,7 +55,7 @@ contract AoxconModularStackTest is Test {
 
         vm.expectRevert("HONOR: NON_TRANSFERABLE");
         vm.prank(user);
-        honor.transfer(admin, 1);
+        IERC20(address(honor)).safeTransfer(admin, 1);
     }
 
     function test_Bridge_InboundMint_DualVerification() public {
