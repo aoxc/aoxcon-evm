@@ -29,7 +29,12 @@ remappings = [
     
     # Version Aliases
     "aoxc-v2/=src/aoxcore-v2/",
-    "aoxc-v1/=src/aoxcore-v1/"
+    "aoxc-v1/=src/aoxcore-v1/",
+
+    # Upgrade-focused aliases for library-like consumption
+    "upgrade-v1/=src/aoxcore-v1/",
+    "upgrade-v2/=src/aoxcore-v2/",
+    "upgrade-honor/=src/aoxcon/solidity/"
 ]
 
 # ==============================================================================
