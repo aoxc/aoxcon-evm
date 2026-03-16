@@ -31,13 +31,21 @@ contract AoxcXasToken {
     }
 
     modifier onlyOwner() {
-        if (msg.sender != owner) revert Unauthorized();
+        _onlyOwner();
         _;
     }
 
+    function _onlyOwner() internal view {
+        if (msg.sender != owner) revert Unauthorized();
+    }
+
     modifier onlyOperator() {
-        if (!bridgeOperators[msg.sender]) revert Unauthorized();
+        _onlyOperator();
         _;
+    }
+
+    function _onlyOperator() internal view {
+        if (!bridgeOperators[msg.sender]) revert Unauthorized();
     }
 
     function setBridgeOperator(address operator, bool allowed) external onlyOwner {

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aoxc.dev/schemas/aoxc-library-consumer.schema.json",
+  "title": "AOXC Library Consumer Config",
+  "type": "object",
+  "required": ["chain", "library", "modules"],
+  "properties": {
+    "chain": {
+      "type": "object",
+      "required": ["name", "chainId"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "chainId": { "type": "integer", "minimum": 1 },
+        "rpcUrl": { "type": "string", "minLength": 1 }
+      }
+    },
+    "library": {
+      "type": "object",
+      "required": ["repo", "ref", "manifestPath"],
+      "properties": {
+        "repo": { "type": "string", "minLength": 1 },
+        "ref": { "type": "string", "minLength": 1 },
+        "manifestPath": { "type": "string", "minLength": 1 }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["module_id", "moduleTypeHex", "salt", "init"],
+        "properties": {
+          "module_id": { "type": "string", "minLength": 1 },
+          "moduleTypeHex": { "type": "string", "pattern": "^0x[a-fA-F0-9]{64}$" },
+          "salt": { "type": "string", "pattern": "^0x[a-fA-F0-9]{64}$" },
+          "init": {
+            "type": "object",
+            "required": ["encoding", "values"],
+            "properties": {
+              "encoding": { "type": "string", "enum": ["abi.encode"] },
+              "values": { "type": "array" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

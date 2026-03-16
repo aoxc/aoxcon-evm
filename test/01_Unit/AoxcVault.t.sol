@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "aoxc-v2/finance/AoxcVault.sol";
-import "../mocks/MockCore.sol";
-import "../mocks/MockToken.sol";
-import "aoxc-v2/libraries/AoxcConstants.sol";
-import "aoxc-v2/libraries/AoxcErrors.sol";
+import {AoxcVault} from "aoxc-v2/finance/AoxcVault.sol";
+import {MockCore} from "../mocks/MockCore.sol";
+import {MockToken} from "../mocks/MockToken.sol";
+import {AoxcConstants} from "aoxc-v2/libraries/AoxcConstants.sol";
+import {AoxcErrors} from "aoxc-v2/libraries/AoxcErrors.sol";
 
 /**
  * @title AoxcVaultTest

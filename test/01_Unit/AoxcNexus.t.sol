@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "aoxc-v2/core/AoxcNexus.sol";
-import "aoxc-v2/core/AoxcCore.sol"; // Mock yerine gerçeği kullanıyoruz
-import "aoxc-v2/libraries/AoxcConstants.sol";
-import "aoxc-v2/libraries/AoxcErrors.sol";
+import {AoxcNexus} from "aoxc-v2/core/AoxcNexus.sol";
+import {AoxcCore} from "aoxc-v2/core/AoxcCore.sol"; // Mock yerine gerçeği kullanıyoruz
+import {AoxcConstants} from "aoxc-v2/libraries/AoxcConstants.sol";
+import {AoxcErrors} from "aoxc-v2/libraries/AoxcErrors.sol";
 
 contract AoxcNexusTest is Test {
     AoxcNexus public nexus;

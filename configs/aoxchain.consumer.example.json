@@ -1,0 +1,40 @@
+{
+  "chain": {
+    "name": "aoxchain-local",
+    "chainId": 31337,
+    "rpcUrl": "http://127.0.0.1:8545"
+  },
+  "library": {
+    "repo": "github.com/aoxc/aoxcon-evm",
+    "ref": "main",
+    "manifestPath": "src/aoxc-library/manifest/approved-modules.json"
+  },
+  "modules": [
+    {
+      "module_id": "aoxcexampletoken",
+      "moduleTypeHex": "0xf98108a8f25641fbc1f3b9f0467b8f0dd56f1bf68e25f3af2a0ed2a678e2f7f9",
+      "salt": "0x1000000000000000000000000000000000000000000000000000000000000001",
+      "init": {
+        "encoding": "abi.encode",
+        "values": [
+          "0x1111111111111111111111111111111111111111",
+          "AOXC Example",
+          "AOXCE",
+          "1000000000000000000000000"
+        ]
+      }
+    },
+    {
+      "module_id": "aoxcexampletreasury",
+      "moduleTypeHex": "0xf4d9602473b03f0f8e1f5f8f2f2f6e7e7215a9ee7f86954dfe0c567d2ebd6007",
+      "salt": "0x2000000000000000000000000000000000000000000000000000000000000002",
+      "init": {
+        "encoding": "abi.encode",
+        "values": [
+          "0x1111111111111111111111111111111111111111",
+          "0x2222222222222222222222222222222222222222"
+        ]
+      }
+    }
+  ]
+}

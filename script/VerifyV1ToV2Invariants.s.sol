@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
-import "aoxc-v1/AOXC.sol";
-import "aoxc-v2/core/AoxcCore.sol";
-import "aoxc-v2/libraries/AoxcConstants.sol";
+import {AOXC} from "aoxc-v1/AOXC.sol";
+import {AoxcCore} from "aoxc-v2/core/AoxcCore.sol";
+import {AoxcConstants} from "aoxc-v2/libraries/AoxcConstants.sol";
 
 /**
  * @notice Post-deploy invariant verifier for rehearsal/production checks.

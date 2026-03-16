@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "aoxc-v2/core/AoxcRegistry.sol";
-import "aoxc-v2/access/AoxcSentinel.sol";
-import "aoxc-v2/infra/AoxcAutoRepair.sol";
-import "aoxc-v2/libraries/AoxcConstants.sol";
-import "../mocks/MockCore.sol";
+import {AoxcRegistry} from "aoxc-v2/core/AoxcRegistry.sol";
+import {AoxcSentinel} from "aoxc-v2/access/AoxcSentinel.sol";
+import {AoxcAutoRepair} from "aoxc-v2/infra/AoxcAutoRepair.sol";
+import {AoxcConstants} from "aoxc-v2/libraries/AoxcConstants.sol";
+import {MockCore} from "../mocks/MockCore.sol";
 
 /**
  * @title Operation Red Cell: Full Neural Defense & Auto-Repair Integration

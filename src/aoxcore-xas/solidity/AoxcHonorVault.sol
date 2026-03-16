@@ -28,8 +28,12 @@ contract AoxcHonorVault {
     }
 
     modifier onlyOwner() {
-        if (msg.sender != owner) revert Unauthorized();
+        _onlyOwner();
         _;
+    }
+
+    function _onlyOwner() internal view {
+        if (msg.sender != owner) revert Unauthorized();
     }
 
     function setFounder(address account, bool enabled, uint256 weight) external onlyOwner {

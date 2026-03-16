@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "aoxc-v2/core/AoxcRegistry.sol";
-import "aoxc-v2/libraries/AoxcConstants.sol";
-import "aoxc-v2/libraries/AoxcErrors.sol";
-import "aoxc-v2/libraries/AoxcEvents.sol";
+import {AoxcRegistry} from "aoxc-v2/core/AoxcRegistry.sol";
+import {AoxcConstants} from "aoxc-v2/libraries/AoxcConstants.sol";
+import {AoxcErrors} from "aoxc-v2/libraries/AoxcErrors.sol";
+import {AoxcEvents} from "aoxc-v2/libraries/AoxcEvents.sol";
 import {IAoxcStorage} from "aoxc-interfaces/IAoxcStorage.sol";
 
 /**
@@ -117,6 +117,8 @@ contract AoxcRegistryTest is Test {
         
         // Mevcut hucreyi (Cell 1) dolduruyoruz
         for(uint256 i = 0; i < maxMembers; i++) {
+            // casting to uint160 is safe because loop index is tiny and deterministic in tests
+            // forge-lint: disable-next-line(unsafe-typecast)
             registry.onboardMember(address(uint160(i + 1000)));
         }
         

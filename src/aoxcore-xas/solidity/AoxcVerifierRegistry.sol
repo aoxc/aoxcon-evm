@@ -17,8 +17,12 @@ contract AoxcVerifierRegistry {
     }
 
     modifier onlyOwner() {
-        if (msg.sender != owner) revert Unauthorized();
+        _onlyOwner();
         _;
+    }
+
+    function _onlyOwner() internal view {
+        if (msg.sender != owner) revert Unauthorized();
     }
 
     function setVerifier(uint256 chainId, address verifier) external onlyOwner {
