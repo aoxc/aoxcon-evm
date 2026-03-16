@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "aoxc-v2/core/AoxcCore.sol";
-import "aoxc-v2/access/AoxcSentinel.sol";
-import "aoxc-v2/finance/AoxcVault.sol";
+import {AoxcCore} from "aoxc-v2/core/AoxcCore.sol";
+import {AoxcSentinel} from "aoxc-v2/access/AoxcSentinel.sol";
+import {AoxcVault} from "aoxc-v2/finance/AoxcVault.sol";
 
 /**
  * @title QuantumLeap - AOXC V2 Upgrade & Deployment Script

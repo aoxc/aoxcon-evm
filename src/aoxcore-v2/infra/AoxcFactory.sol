@@ -5,12 +5,12 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 // AOXC Core Imports - Path sync check required for your project structure
-import "aoxc-core/AoxcRegistry.sol";
-import "aoxc-finance/AoxcVault.sol";
-import "aoxc-core/AoxcNexus.sol";
-import "aoxc-finance/AoxcCpex.sol";
-import "aoxc-libraries/AoxcConstants.sol";
-import "aoxc-libraries/AoxcErrors.sol";
+import {AoxcRegistry} from "aoxc-core/AoxcRegistry.sol";
+import {AoxcVault} from "aoxc-finance/AoxcVault.sol";
+import {AoxcNexus} from "aoxc-core/AoxcNexus.sol";
+import {AoxcCpex} from "aoxc-finance/AoxcCpex.sol";
+import {AoxcConstants} from "aoxc-libraries/AoxcConstants.sol";
+import {AoxcErrors} from "aoxc-libraries/AoxcErrors.sol";
 
 /**
  * @title AoxcFactory

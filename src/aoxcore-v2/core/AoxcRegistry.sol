@@ -143,16 +143,22 @@ contract AoxcRegistry is
         if (citizen.joinedAt == 0) revert AoxcErrors.Aoxc_Registry_CitizenNotFound();
 
         uint256 oldRep = citizen.reputation;
+        // casting to int256 is safe because oldRep is bounded by maxReputation, far below int256 max
+        // forge-lint: disable-next-line(unsafe-typecast)
         int256 newRep = int256(oldRep) + adjustment;
 
         if (newRep < 0) newRep = 0;
         if (newRep > int256($.maxReputation)) newRep = int256($.maxReputation);
 
+        // casting to uint256 is safe because newRep is clamped to [0, maxReputation]
+        // forge-lint: disable-next-line(unsafe-typecast)
         citizen.reputation = uint256(newRep);
         citizen.lastPulse = uint64(block.timestamp);
 
         _checkStatus($, member, citizen);
 
+        // casting to uint256 is safe because newRep is clamped to [0, maxReputation]
+        // forge-lint: disable-next-line(unsafe-typecast)
         emit AoxcEvents.ReputationUpdated(member, oldRep, uint256(newRep), reasonCode);
     }
 

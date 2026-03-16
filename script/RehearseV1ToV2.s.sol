@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "aoxc-v1/AOXC.sol";
-import "aoxc-v2/core/AoxcCore.sol";
+import {AOXC} from "aoxc-v1/AOXC.sol";
+import {AoxcCore} from "aoxc-v2/core/AoxcCore.sol";
 
 /**
  * @notice Rehearsal-only migration bootstrap for v1 -> v2 verification.

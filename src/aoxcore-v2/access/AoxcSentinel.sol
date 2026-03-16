@@ -199,7 +199,9 @@ contract AoxcSentinel is
     }
 
     function updateRiskThreshold(uint256 newThreshold) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (newThreshold > 255) revert AoxcErrors.Aoxc_Neural_RiskTooHigh(uint8(newThreshold), 255);
+        if (newThreshold > 255) {
+            revert AoxcErrors.Aoxc_Neural_RiskTooHigh(255, 255);
+        }
         _getStore().riskThreshold = newThreshold;
     }
 

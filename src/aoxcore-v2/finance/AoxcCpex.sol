@@ -111,12 +111,18 @@ contract AoxcCpex is IAoxcCpex, Initializable, AccessControlUpgradeable, Reentra
         if (main.isSovereignVaultSealed) revert AoxcErrors.Aoxc_GlobalLockActive();
         if (amount == 0) revert AoxcErrors.Aoxc_ZeroAmount();
         if (amount != packet.value) revert AoxcErrors.Aoxc_Neural_ValueMismatch(amount, packet.value);
+        if (amount > type(uint128).max) revert AoxcErrors.Aoxc_Module_Error(3, 413);
+        if (duration > type(uint64).max) revert AoxcErrors.Aoxc_Module_Error(3, 414);
 
         stake.totalValueLocked += amount;
         stake.accountPositions[msg.sender].push(
             IAoxcCpex.PositionInfo({
+                // casting to uint128 is safe because amount is checked against type(uint128).max above
+                // forge-lint: disable-next-line(unsafe-typecast)
                 principal: uint128(amount),
                 entryTime: uint64(block.timestamp),
+                // casting to uint64 is safe because duration is checked against type(uint64).max above
+                // forge-lint: disable-next-line(unsafe-typecast)
                 lockPeriod: uint64(duration),
                 neuralBoost: uint64(packet.riskScore == 0 ? 10000 : 8000), // AI Merit Scaler
                 isActive: true

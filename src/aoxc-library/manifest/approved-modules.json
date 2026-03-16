@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0.0",
+  "generated_from": "script/generate_library_manifest.py",
+  "module_count": 11,
+  "modules": [
+    {
+      "module_id": "aoxcgateway",
+      "file": "src/aoxc-library/access/AoxcGatewayModule.sol",
+      "contract": "AoxcGatewayModule",
+      "base_contract": "AoxcGateway",
+      "base_import": "aoxc-access/AoxcGateway.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxcsentinelai",
+      "file": "src/aoxc-library/ai/AoxcSentinelAIModule.sol",
+      "contract": "AoxcSentinelAIModule",
+      "base_contract": "AoxcSentinel",
+      "base_import": "aoxc-access/AoxcSentinel.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxcbridgeverifier",
+      "file": "src/aoxc-library/bridge/AoxcBridgeVerifierModule.sol",
+      "contract": "AoxcBridgeVerifierModule",
+      "base_contract": "AoxcBridgeVerifier",
+      "base_import": "aoxc-v2/bridge/AoxcBridgeVerifier.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxccore",
+      "file": "src/aoxc-library/core/AoxcCoreModule.sol",
+      "contract": "AoxcCoreModule",
+      "base_contract": "AoxcCore",
+      "base_import": "aoxc-core/AoxcCore.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxcdaomanager",
+      "file": "src/aoxc-library/governance/AoxcDaoManagerModule.sol",
+      "contract": "AoxcDaoManagerModule",
+      "base_contract": "AoxcDaoManager",
+      "base_import": "aoxc-gov/AoxcDaoManager.sol",
+      "constructor_args": [
+        "address registry_",
+        "address token_",
+        "uint256 lifespan_"
+      ]
+    },
+    {
+      "module_id": "aoxcautorepair",
+      "file": "src/aoxc-library/infra/AoxcAutoRepairModule.sol",
+      "contract": "AoxcAutoRepairModule",
+      "base_contract": "AoxcAutoRepair",
+      "base_import": "aoxc-infra/AoxcAutoRepair.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxccpexstaking",
+      "file": "src/aoxc-library/stake/AoxcCpexStakingModule.sol",
+      "contract": "AoxcCpexStakingModule",
+      "base_contract": "AoxcCpex",
+      "base_import": "aoxc-finance/AoxcCpex.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxcexampletoken",
+      "file": "src/aoxc-library/system/modules/examples/AoxcExampleTokenModule.sol",
+      "contract": "AoxcExampleTokenModule",
+      "base_contract": "IAoxcModule",
+      "base_import": "aoxc-library/system/interfaces/IAoxcModule.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxcexampletreasury",
+      "file": "src/aoxc-library/system/modules/examples/AoxcExampleTreasuryModule.sol",
+      "contract": "AoxcExampleTreasuryModule",
+      "base_contract": "IAoxcModule",
+      "base_import": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxcchange",
+      "file": "src/aoxc-library/treasury/AoxcChangeModule.sol",
+      "contract": "AoxcChangeModule",
+      "base_contract": "AoxcChange",
+      "base_import": "aoxc-finance/AoxcChange.sol",
+      "constructor_args": []
+    },
+    {
+      "module_id": "aoxcvault",
+      "file": "src/aoxc-library/treasury/AoxcVaultModule.sol",
+      "contract": "AoxcVaultModule",
+      "base_contract": "AoxcVault",
+      "base_import": "aoxc-finance/AoxcVault.sol",
+      "constructor_args": []
+    }
+  ]
+}

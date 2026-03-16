@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "aoxc-v2/access/AoxcGateway.sol";
-import "../mocks/MockToken.sol"; // Basit bir ERC20 mock lazım
-import "../mocks/MockSentinel.sol"; // Sentinel dogrulamasi icin
+import {AoxcGateway} from "aoxc-v2/access/AoxcGateway.sol";
+import {MockToken} from "../mocks/MockToken.sol"; // Basit bir ERC20 mock lazım
+import {MockSentinel} from "../mocks/MockSentinel.sol"; // Sentinel dogrulamasi icin
 
 contract AoxcGatewayTest is Test {
     AoxcGateway public gateway;

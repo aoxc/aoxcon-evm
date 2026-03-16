@@ -208,6 +208,37 @@ Security posture improves continuously through:
 
 ## Protocol Engineering
 
+### Prerequisite: Foundry (Forge) Installation
+
+If `forge` is not available on your system, use the repository installer:
+
+```bash
+bash script/install_foundry.sh
+```
+
+What the installer does:
+
+- verifies required system tools (`bash`, `curl`, `git`)
+- installs `foundryup` if missing
+- installs/updates the stable Foundry toolchain (`forge`, `cast`, `anvil`, `chisel`)
+- verifies tool versions and surfaces actionable warnings for common repo issues (e.g., empty `lib/` dependency folders)
+
+Manual fallback (official method):
+
+```bash
+curl -fsSL https://foundry.paradigm.xyz | bash
+foundryup
+```
+
+Post-install verification:
+
+```bash
+forge --version
+cast --version
+anvil --version
+chisel --version
+```
+
 Build contracts:
 
 ```
@@ -366,3 +397,56 @@ For production upgrade discipline (storage continuity, governance safety, and au
 - `docs/SECURITY.md`
 
 These documents define the minimum acceptance criteria before mainnet upgrade execution.
+
+---
+
+## Library Consumer Integration (AOXCHAIN)
+
+For external-chain consumption (e.g. `aoxchain`), use the wrapper modules under `src/aoxc-library` and the generated approved-manifest:
+
+```bash
+python3 script/generate_library_manifest.py
+cat src/aoxc-library/manifest/approved-modules.json
+```
+
+Detailed integration and migration blueprint:
+
+- `docs/AOXCHAIN_LIBRARY_INTEGRATION.md`
+
+Additional sectioned standalone layout docs:
+
+- `docs/AOXC_STANDALONE_LIBRARY_LAYOUT.md`
+
+---
+
+## Foundry Installation Runbook (Production-Friendly)
+
+Use this checklist for deterministic local setup and CI runners:
+
+1. **Install toolchain** with `bash script/install_foundry.sh`.
+2. **Confirm PATH** includes `~/.foundry/bin`.
+3. **Pin and inspect versions** using `forge --version`.
+4. **Initialize dependencies** if needed:
+   ```bash
+   git submodule update --init --recursive
+   ```
+5. **Run repository validation pipeline**:
+   ```bash
+   bash script/validate_foundry_pipeline.sh
+   ```
+
+### Troubleshooting
+
+- **`forge: command not found`**
+  - Re-open your shell, or run:
+    ```bash
+    export PATH="$HOME/.foundry/bin:$PATH"
+    ```
+- **TLS/HTTPS download failures**
+  - Ensure CA certificates are installed on your OS.
+- **Build fails due to missing imports in `lib/`**
+  - Run submodule/dependency initialization before `forge build`.
+- **CI environment mismatches**
+  - Print tool versions as an explicit CI step and fail fast when `forge` is absent.
+
+This workflow is designed to be idempotent and safe to run repeatedly across developer machines and ephemeral CI agents.
